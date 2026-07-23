@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
@@ -281,54 +282,56 @@ public final class CubeRenderer {
                 }
         );
 
-        WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
-            MatrixStack matrices = context.matrixStack();
-            Vec3d camPos = context.camera().getPos();
-            partialTicks = context.tickDelta();
+        WorldRenderEvents.LAST.register(CubeRenderer::renderQueuedObjects);
+    }
 
-            List<RenderableCubeFace> cubeFaces = new ArrayList<>();
-            List<QuadRenderer.RenderableQuad> quads = QuadRenderer.getRenderableQuads(camPos, partialTicks);
+    private static void renderQueuedObjects(WorldRenderContext context) {
+        MatrixStack matrices = context.matrixStack();
+        Vec3d camPos = context.camera().getPos();
+        partialTicks = context.tickDelta();
 
-            synchronized (queuedCubes) {
-                for (Cube cube : queuedCubes) {
-                    cubeFaces.addAll(RenderableCubeFace.fromCube(cube, camPos, partialTicks));
-                }
+        List<RenderableCubeFace> cubeFaces = new ArrayList<>();
+        List<QuadRenderer.RenderableQuad> quads = QuadRenderer.getRenderableQuads(camPos, partialTicks);
+
+        synchronized (queuedCubes) {
+            for (Cube cube : queuedCubes) {
+                cubeFaces.addAll(RenderableCubeFace.fromCube(cube, camPos, partialTicks));
             }
-            synchronized (queuedFrameCubes) {
-                for (CubeFrameTimed cube : queuedFrameCubes) {
-                    cubeFaces.addAll(RenderableCubeFace.fromCubeFrameTimed(cube, camPos));
-                }
+        }
+        synchronized (queuedFrameCubes) {
+            for (CubeFrameTimed cube : queuedFrameCubes) {
+                cubeFaces.addAll(RenderableCubeFace.fromCubeFrameTimed(cube, camPos));
             }
+        }
 
-            cubeFaces.sort((a, b) -> Double.compare(b.distanceSq, a.distanceSq));
-            quads.sort((a, b) -> Double.compare(b.getDistanceSq(), a.getDistanceSq()));
+        cubeFaces.sort((a, b) -> Double.compare(b.distanceSq, a.distanceSq));
+        quads.sort((a, b) -> Double.compare(b.getDistanceSq(), a.getDistanceSq()));
 
-            RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
-            RenderSystem.enableDepthTest();
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
+        RenderSystem.enableDepthTest();
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
 
-            if (!cubeFaces.isEmpty()) {
-                RenderSystem.enableCull();
-                RenderSystem.depthMask(true);
-                for (RenderableCubeFace face : cubeFaces) {
-                    face.render(matrices, camPos);
-                }
-            }
-
-            if (!quads.isEmpty()) {
-                RenderSystem.disableCull();
-                RenderSystem.depthMask(false);
-                for (QuadRenderer.RenderableQuad quad : quads) {
-                    quad.render(matrices, camPos);
-                }
-            }
-
-            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-            RenderSystem.depthMask(true);
+        if (!cubeFaces.isEmpty()) {
             RenderSystem.enableCull();
-            RenderSystem.disableBlend();
-        });
+            RenderSystem.depthMask(true);
+            for (RenderableCubeFace face : cubeFaces) {
+                face.render(matrices, camPos);
+            }
+        }
+
+        if (!quads.isEmpty()) {
+            RenderSystem.disableCull();
+            RenderSystem.depthMask(false);
+            for (QuadRenderer.RenderableQuad quad : quads) {
+                quad.render(matrices, camPos);
+            }
+        }
+
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+        RenderSystem.depthMask(true);
+        RenderSystem.enableCull();
+        RenderSystem.disableBlend();
     }
 
     private static void renderFaceGeometry(BufferBuilder buffer, Tessellator tessellator,

@@ -21,20 +21,10 @@ public class TickSchedulerClient {
         ClientTickEvents.END_CLIENT_TICK.register(TickSchedulerClient::onTick);
     }
 
-    /**
-     * Schedules a task to execute after a specified delay in ticks
-     * @param delayTicks Delay of how many ticks to wait before executing the action
-     * @param action The action to execute each tick, receives current iteration count (0-indexed)
-     */
     public static void schedule(int delayTicks, Runnable action) {
         tasksToAdd.add(new ScheduledTask(delayTicks, action));
     }
 
-    /**
-     * Schedules a task to execute repeatedly once per tick for the specified number of times
-     * @param times Number of times to execute the action
-     * @param action The action to execute each tick, receives current iteration count (0-indexed)
-     */
     public static void scheduleRepeating(int times, IntConsumer action) {
         repeatingTasksToAdd.add(new RepeatingTask(times, action));
     }

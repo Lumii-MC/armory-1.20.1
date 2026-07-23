@@ -46,11 +46,8 @@ public final class QuadRenderer {
     private static int frameCounter = 0;
 
     private static final Identifier QUAD_PACKET_ID = new Identifier("tritium", "quad_render");
+    private static final Identifier QUAD_PACKET_SPIN_ID = new Identifier("tritium", "quad_render_spin");
 
-    /**
-     * Schedule a quad to be rendered on the server and sent to all clients.
-     * Call this from server-side code.
-     */
     public static void scheduleCommon(ServerWorld world, Vec3d pos, float width, float height,
                                       Vec3d rotation, float scale, Identifier texture,
                                       int duration, boolean fade, int fadeStart,
@@ -88,29 +85,67 @@ public final class QuadRenderer {
         }
     }
 
-    /**
-     * Schedule a quad to be rendered only on the client with tick-based timing.
-     * Call this from client-side code.
-     */
+    public static void scheduleCommon(ServerWorld world, Vec3d pos, float width, float height,
+                                      Vec3d rotation, float scale, Identifier texture,
+                                      int duration, boolean fade, int fadeStart,
+                                      boolean scaleUp, int scaleStart, float scaleFactor,
+                                      float alpha, SpinAxis rotationAxis, float rotMult) {
+
+        PacketByteBuf buf = PacketByteBufs.create();
+
+        buf.writeDouble(pos.x);
+        buf.writeDouble(pos.y);
+        buf.writeDouble(pos.z);
+
+        buf.writeFloat(width);
+        buf.writeFloat(height);
+
+        buf.writeDouble(rotation.x);
+        buf.writeDouble(rotation.y);
+        buf.writeDouble(rotation.z);
+
+        buf.writeFloat(scale);
+        buf.writeString(texture.toString());
+
+        buf.writeInt(duration);
+        buf.writeBoolean(fade);
+        buf.writeInt(fadeStart);
+
+        buf.writeBoolean(scaleUp);
+        buf.writeInt(scaleStart);
+        buf.writeFloat(scaleFactor);
+
+        buf.writeFloat(alpha);
+
+        buf.writeInt(rotationAxis.ordinal());
+        buf.writeFloat(rotMult);
+
+        for (ServerPlayerEntity player : world.getPlayers()) {
+            ServerPlayNetworking.send(player, QUAD_PACKET_SPIN_ID, buf);
+        }
+    }
+
     public static void scheduleClient(Vec3d pos, float width, float height,
                                       Vec3d rotation, float scale, Identifier texture,
                                       int duration, boolean fade, int fadeStart,
                                       boolean scaleUp, int scaleStart, float scaleFactor,
                                       float alpha) {
+        scheduleClient(pos, width, height, rotation, scale, texture, duration, fade, fadeStart,
+                scaleUp, scaleStart, scaleFactor, alpha, SpinAxis.Y, 0f);
+    }
+
+    public static void scheduleClient(Vec3d pos, float width, float height,
+                                      Vec3d rotation, float scale, Identifier texture,
+                                      int duration, boolean fade, int fadeStart,
+                                      boolean scaleUp, int scaleStart, float scaleFactor,
+                                      float alpha, SpinAxis spinAxis, float rotMult) {
         if (duration <= 0) return;
         synchronized (queuedQuads) {
             queuedQuads.add(new Quad(pos, width, height, rotation, scale, texture, duration,
-                    fade, fadeStart, scaleUp, scaleStart, scaleFactor, alpha));
+                    fade, fadeStart, scaleUp, scaleStart, scaleFactor, alpha, spinAxis, rotMult));
         }
     }
 
-    /**
-     * Schedule a quad to be rendered only on the client with a high precision timing.
-     * This is useful for complex math-driven animations that need frame-accurate timing.
-     * 240 Of the timing unit here equals 1 second.
-     * Automatically translates the given timing variables to the player's current fps.
-     * This means that the quad always runs in 240 fps.
-     */
     public static void scheduleClient240Hz(Vec3d pos, float width, float height,
                                            Vec3d rotation, float scale, Identifier texture,
                                            int duration, boolean fade, int fadeStart,
@@ -232,6 +267,49 @@ public final class QuadRenderer {
                     });
                 }
         );
+
+        ClientPlayNetworking.registerGlobalReceiver(QUAD_PACKET_SPIN_ID,
+                (client, handler, buf, responseSender) -> {
+
+                    double x = buf.readDouble();
+                    double y = buf.readDouble();
+                    double z = buf.readDouble();
+                    Vec3d pos = new Vec3d(x, y, z);
+
+                    float width = buf.readFloat();
+                    float height = buf.readFloat();
+
+                    double rotX = buf.readDouble();
+                    double rotY = buf.readDouble();
+                    double rotZ = buf.readDouble();
+                    Vec3d rotation = new Vec3d(rotX, rotY, rotZ);
+
+                    float scale = buf.readFloat();
+                    String textureStr = buf.readString();
+                    Identifier texture = new Identifier(textureStr);
+
+                    int duration = buf.readInt();
+                    boolean fade = buf.readBoolean();
+                    int fadeStart = buf.readInt();
+
+                    boolean scaleUp = buf.readBoolean();
+                    int scaleStart = buf.readInt();
+                    float scaleFactor = buf.readFloat();
+
+                    float alpha = buf.readFloat();
+
+                    int axisNum = buf.readInt();
+
+                    SpinAxis axis = SpinAxis.values()[axisNum];
+
+                    float mult = buf.readFloat();
+
+                    client.execute(() -> {
+                        scheduleClient(pos, width, height, rotation, scale, texture,
+                                duration, fade, fadeStart, scaleUp, scaleStart, scaleFactor, alpha, axis, mult);
+                    });
+                }
+        );
     }
 
     static void renderQuad(MatrixStack matrices, Vec3d camPos, Quad q, float partialTicks, boolean isTickBased) {
@@ -265,6 +343,15 @@ public final class QuadRenderer {
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees((float) q.rotation.y));
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees((float) q.rotation.x));
         matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) q.rotation.z));
+
+        if (q.rotMult != 0f) {
+            float spinDegrees = q.rotMult * interpolatedTicksLived;
+            switch (q.spinAxis) {
+                case X -> matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(spinDegrees));
+                case Y -> matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(spinDegrees));
+                case Z -> matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(spinDegrees));
+            }
+        }
 
         matrices.scale(scale, scale, scale);
         Matrix4f matrix = matrices.peek().getPositionMatrix();
@@ -341,6 +428,8 @@ public final class QuadRenderer {
         matrices.pop();
     }
 
+    public enum SpinAxis { X, Y, Z }
+
     private static class Quad {
         Vec3d position;
         float width, height;
@@ -355,10 +444,13 @@ public final class QuadRenderer {
         int scaleStart;
         float scaleFactor;
         float baseAlpha;
+        SpinAxis spinAxis;
+        float rotMult;
 
         Quad(Vec3d pos, float w, float h, Vec3d rot, float s, Identifier tex,
              int duration, boolean fade, int fadeStart,
-             boolean scaleUp, int scaleStart, float scaleFactor, float baseAlpha) {
+             boolean scaleUp, int scaleStart, float scaleFactor, float baseAlpha,
+             SpinAxis spinAxis, float rotMult) {
             this.position = pos;
             this.width = w;
             this.height = h;
@@ -374,6 +466,8 @@ public final class QuadRenderer {
             this.scaleStart = scaleStart;
             this.scaleFactor = scaleFactor;
             this.baseAlpha = baseAlpha;
+            this.spinAxis = spinAxis;
+            this.rotMult = rotMult;
         }
     }
 
