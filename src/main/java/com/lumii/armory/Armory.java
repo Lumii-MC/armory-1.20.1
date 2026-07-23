@@ -4,6 +4,7 @@ import com.lumii.armory.registry.ArmoryDamageRegistry;
 import com.lumii.armory.registry.ArmoryItemRegistry;
 import com.lumii.armory.registry.ArmoryPackets;
 import com.lumii.armory.registry.ArmorySoundsRegistry;
+import com.lumii.armory.util.time.TickSchedulerServer;
 import net.chemthunder.reflect.api.ReflectPlugin;
 import net.fabricmc.api.ModInitializer;
 
@@ -24,6 +25,7 @@ public class Armory implements ModInitializer {
 		ArmoryItemRegistry.init();
 		ArmorySoundsRegistry.index();
 		ArmoryPackets.initServer();
+		TickSchedulerServer.init();
 
 		LOGGER.info("Armory Initializing!");
 	}

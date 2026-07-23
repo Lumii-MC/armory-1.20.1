@@ -1,4 +1,4 @@
-package com.lumii.armory.util;
+package com.lumii.armory.util.time;
 
 public class TimeUtils {
     public TimeUtils() {

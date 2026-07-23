@@ -1,6 +1,6 @@
 package com.lumii.armory.packets;
 
-import com.lumii.armory.util.TimeUtils;
+import com.lumii.armory.util.time.TimeUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.Vec3d;
