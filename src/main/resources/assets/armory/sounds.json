@@ -1,0 +1,8 @@
+{
+  "slash": {
+    "subtitle": "sounds.armory.slash",
+    "sounds": [
+      "armory:slash"
+    ]
+  }
+}

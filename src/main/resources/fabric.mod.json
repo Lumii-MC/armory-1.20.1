@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "armory",
+	"version": "${version}",
+	"name": "Armory",
+	"description": "Weapons for Nameless SMP",
+	"authors": [
+		"Lumii"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/armory/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.lumii.armory.Armory"
+		],
+		"client": [
+			"com.lumii.armory.ArmoryClient"
+		],
+		"fabric-datagen": [
+			"com.lumii.armory.ArmoryDataGenerator"
+		]
+	},
+	"mixins": [
+		"armory.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	}
+}

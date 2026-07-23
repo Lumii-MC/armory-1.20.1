@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "armory:guillotine_shard"
+    },
+    {
+      "item": "armory:guillotine_shard"
+    },
+    {
+      "item": "armory:wraith"
+    }
+  ],
+  "result": {
+    "item": "armory:daybreak_edict"
+  }
+}

@@ -1,0 +1,10 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "armory:item/guillotine_skin_gui"
+	},
+	"gui_light": "front",
+	"display": {}
+}

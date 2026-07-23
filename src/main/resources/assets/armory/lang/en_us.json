@@ -1,0 +1,13 @@
+{
+  "item.armory.guillotine": "Guillotine",
+  "item.armory.guillotine_breakable": "Guillotine",
+  "item.armory.daybreak_edict": "Daybreak Executioner",
+  "item.armory.guillotine_shard": "Guillotine Shard",
+  "item.armory.wraith": "Wraith",
+
+  "death.attack.daybreak.player": "%1$s has perished by the hands of %2$s",
+
+  "tooltip.armory.guillotine1": "On hit, leeches 2 hearts of health from a target",
+  "tooltip.armory.guillotine2": "Reap mode: pulls the target towards you.",
+  "tooltip.armory.guillotine3": "Hook mode: pulls you to the target."
+}
