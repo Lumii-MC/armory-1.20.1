@@ -55,29 +55,12 @@ public final class QuadRenderer {
                                       float alpha) {
 
         PacketByteBuf buf = PacketByteBufs.create();
-
-        buf.writeDouble(pos.x);
-        buf.writeDouble(pos.y);
-        buf.writeDouble(pos.z);
-
-        buf.writeFloat(width);
-        buf.writeFloat(height);
-
-        buf.writeDouble(rotation.x);
-        buf.writeDouble(rotation.y);
-        buf.writeDouble(rotation.z);
-
-        buf.writeFloat(scale);
-        buf.writeString(texture.toString());
-
-        buf.writeInt(duration);
-        buf.writeBoolean(fade);
-        buf.writeInt(fadeStart);
-
-        buf.writeBoolean(scaleUp);
-        buf.writeInt(scaleStart);
-        buf.writeFloat(scaleFactor);
-
+        buf.writeDouble(pos.x); buf.writeDouble(pos.y); buf.writeDouble(pos.z);
+        buf.writeFloat(width); buf.writeFloat(height);
+        buf.writeDouble(rotation.x); buf.writeDouble(rotation.y); buf.writeDouble(rotation.z);
+        buf.writeFloat(scale); buf.writeString(texture.toString());
+        buf.writeInt(duration); buf.writeBoolean(fade); buf.writeInt(fadeStart);
+        buf.writeBoolean(scaleUp); buf.writeInt(scaleStart); buf.writeFloat(scaleFactor);
         buf.writeFloat(alpha);
 
         for (ServerPlayerEntity player : world.getPlayers()) {
@@ -92,33 +75,14 @@ public final class QuadRenderer {
                                       float alpha, SpinAxis rotationAxis, float rotMult) {
 
         PacketByteBuf buf = PacketByteBufs.create();
-
-        buf.writeDouble(pos.x);
-        buf.writeDouble(pos.y);
-        buf.writeDouble(pos.z);
-
-        buf.writeFloat(width);
-        buf.writeFloat(height);
-
-        buf.writeDouble(rotation.x);
-        buf.writeDouble(rotation.y);
-        buf.writeDouble(rotation.z);
-
-        buf.writeFloat(scale);
-        buf.writeString(texture.toString());
-
-        buf.writeInt(duration);
-        buf.writeBoolean(fade);
-        buf.writeInt(fadeStart);
-
-        buf.writeBoolean(scaleUp);
-        buf.writeInt(scaleStart);
-        buf.writeFloat(scaleFactor);
-
+        buf.writeDouble(pos.x); buf.writeDouble(pos.y); buf.writeDouble(pos.z);
+        buf.writeFloat(width); buf.writeFloat(height);
+        buf.writeDouble(rotation.x); buf.writeDouble(rotation.y); buf.writeDouble(rotation.z);
+        buf.writeFloat(scale); buf.writeString(texture.toString());
+        buf.writeInt(duration); buf.writeBoolean(fade); buf.writeInt(fadeStart);
+        buf.writeBoolean(scaleUp); buf.writeInt(scaleStart); buf.writeFloat(scaleFactor);
         buf.writeFloat(alpha);
-
-        buf.writeInt(rotationAxis.ordinal());
-        buf.writeFloat(rotMult);
+        buf.writeInt(rotationAxis.ordinal()); buf.writeFloat(rotMult);
 
         for (ServerPlayerEntity player : world.getPlayers()) {
             ServerPlayNetworking.send(player, QUAD_PACKET_SPIN_ID, buf);
@@ -152,25 +116,13 @@ public final class QuadRenderer {
                                            boolean scaleUp, int scaleStart, float scaleFactor,
                                            float baseAlpha) {
         int currentFPS = MinecraftClient.getInstance().getCurrentFps();
-
         if (duration == 1) {
-            int durationA = 1;
-            int fadeStartA = fadeStart;
-            int scaleStartA = scaleStart;
-            scheduleClientFrames(pos, width, height,
-                    rotation, scale, texture,
-                    durationA, fade, fadeStartA,
-                    scaleUp, scaleStartA, scaleFactor,
-                    baseAlpha);
+            scheduleClientFrames(pos, width, height, rotation, scale, texture, 1, fade, fadeStart, scaleUp, scaleStart, scaleFactor, baseAlpha);
         } else {
             int durationA = Math.max(1, Math.round(duration * (currentFPS / 240f)));
             int fadeStartA = Math.round(fadeStart * (currentFPS / 240f));
             int scaleStartA = Math.round(scaleStart * (currentFPS / 240f));
-            scheduleClientFrames(pos, width, height,
-                    rotation, scale, texture,
-                    durationA, fade, fadeStartA,
-                    scaleUp, scaleStartA, scaleFactor,
-                    baseAlpha);
+            scheduleClientFrames(pos, width, height, rotation, scale, texture, durationA, fade, fadeStartA, scaleUp, scaleStartA, scaleFactor, baseAlpha);
         }
     }
 
@@ -193,16 +145,12 @@ public final class QuadRenderer {
         synchronized (queuedQuads) {
             if (!queuedQuads.isEmpty()) {
                 tickCounter++;
-
                 quadsToRemove.clear();
                 for (Quad quad : queuedQuads) {
                     if (!MinecraftClient.getInstance().isPaused() || !MinecraftClient.getInstance().isInSingleplayer()) {
                         quad.prevDuration = quad.duration;
                         quad.duration--;
-
-                        if (quad.duration <= 0) {
-                            quadsToRemove.add(quad);
-                        }
+                        if (quad.duration <= 0) quadsToRemove.add(quad);
                     }
                 }
                 queuedQuads.removeAll(quadsToRemove);
@@ -211,13 +159,10 @@ public final class QuadRenderer {
         synchronized (queuedFrameQuads) {
             if (!queuedFrameQuads.isEmpty()) {
                 frameCounter++;
-
                 frameQuadsToRemove.clear();
                 for (QuadFrameTimed quad : queuedFrameQuads) {
                     int framesLived = frameCounter - quad.startFrame;
-                    if (framesLived >= quad.durationFrames) {
-                        frameQuadsToRemove.add(quad);
-                    }
+                    if (framesLived >= quad.durationFrames) frameQuadsToRemove.add(quad);
                 }
                 queuedFrameQuads.removeAll(frameQuadsToRemove);
             } else {
@@ -227,87 +172,36 @@ public final class QuadRenderer {
     }
 
     public static void init() {
-        ClientTickEvents.START_CLIENT_TICK.register(client -> {
-            clientTick();
-        });
+        ClientTickEvents.START_CLIENT_TICK.register(client -> clientTick());
 
         ClientPlayNetworking.registerGlobalReceiver(QUAD_PACKET_ID,
                 (client, handler, buf, responseSender) -> {
-
-                    double x = buf.readDouble();
-                    double y = buf.readDouble();
-                    double z = buf.readDouble();
+                    double x = buf.readDouble(); double y = buf.readDouble(); double z = buf.readDouble();
                     Vec3d pos = new Vec3d(x, y, z);
-
-                    float width = buf.readFloat();
-                    float height = buf.readFloat();
-
-                    double rotX = buf.readDouble();
-                    double rotY = buf.readDouble();
-                    double rotZ = buf.readDouble();
+                    float width = buf.readFloat(); float height = buf.readFloat();
+                    double rotX = buf.readDouble(); double rotY = buf.readDouble(); double rotZ = buf.readDouble();
                     Vec3d rotation = new Vec3d(rotX, rotY, rotZ);
-
-                    float scale = buf.readFloat();
-                    String textureStr = buf.readString();
-                    Identifier texture = new Identifier(textureStr);
-
-                    int duration = buf.readInt();
-                    boolean fade = buf.readBoolean();
-                    int fadeStart = buf.readInt();
-
-                    boolean scaleUp = buf.readBoolean();
-                    int scaleStart = buf.readInt();
-                    float scaleFactor = buf.readFloat();
-
+                    float scale = buf.readFloat(); Identifier texture = new Identifier(buf.readString());
+                    int duration = buf.readInt(); boolean fade = buf.readBoolean(); int fadeStart = buf.readInt();
+                    boolean scaleUp = buf.readBoolean(); int scaleStart = buf.readInt(); float scaleFactor = buf.readFloat();
                     float alpha = buf.readFloat();
-
-                    client.execute(() -> {
-                        scheduleClient(pos, width, height, rotation, scale, texture,
-                                duration, fade, fadeStart, scaleUp, scaleStart, scaleFactor, alpha);
-                    });
+                    client.execute(() -> scheduleClient(pos, width, height, rotation, scale, texture, duration, fade, fadeStart, scaleUp, scaleStart, scaleFactor, alpha));
                 }
         );
 
         ClientPlayNetworking.registerGlobalReceiver(QUAD_PACKET_SPIN_ID,
                 (client, handler, buf, responseSender) -> {
-
-                    double x = buf.readDouble();
-                    double y = buf.readDouble();
-                    double z = buf.readDouble();
+                    double x = buf.readDouble(); double y = buf.readDouble(); double z = buf.readDouble();
                     Vec3d pos = new Vec3d(x, y, z);
-
-                    float width = buf.readFloat();
-                    float height = buf.readFloat();
-
-                    double rotX = buf.readDouble();
-                    double rotY = buf.readDouble();
-                    double rotZ = buf.readDouble();
+                    float width = buf.readFloat(); float height = buf.readFloat();
+                    double rotX = buf.readDouble(); double rotY = buf.readDouble(); double rotZ = buf.readDouble();
                     Vec3d rotation = new Vec3d(rotX, rotY, rotZ);
-
-                    float scale = buf.readFloat();
-                    String textureStr = buf.readString();
-                    Identifier texture = new Identifier(textureStr);
-
-                    int duration = buf.readInt();
-                    boolean fade = buf.readBoolean();
-                    int fadeStart = buf.readInt();
-
-                    boolean scaleUp = buf.readBoolean();
-                    int scaleStart = buf.readInt();
-                    float scaleFactor = buf.readFloat();
-
+                    float scale = buf.readFloat(); Identifier texture = new Identifier(buf.readString());
+                    int duration = buf.readInt(); boolean fade = buf.readBoolean(); int fadeStart = buf.readInt();
+                    boolean scaleUp = buf.readBoolean(); int scaleStart = buf.readInt(); float scaleFactor = buf.readFloat();
                     float alpha = buf.readFloat();
-
-                    int axisNum = buf.readInt();
-
-                    SpinAxis axis = SpinAxis.values()[axisNum];
-
-                    float mult = buf.readFloat();
-
-                    client.execute(() -> {
-                        scheduleClient(pos, width, height, rotation, scale, texture,
-                                duration, fade, fadeStart, scaleUp, scaleStart, scaleFactor, alpha, axis, mult);
-                    });
+                    int axisNum = buf.readInt(); SpinAxis axis = SpinAxis.values()[axisNum]; float mult = buf.readFloat();
+                    client.execute(() -> scheduleClient(pos, width, height, rotation, scale, texture, duration, fade, fadeStart, scaleUp, scaleStart, scaleFactor, alpha, axis, mult));
                 }
         );
     }
@@ -331,7 +225,7 @@ public final class QuadRenderer {
             if (interpolatedTicksLived >= q.scaleStart) {
                 float t = (interpolatedTicksLived - q.scaleStart) / (q.maxDuration - q.scaleStart);
                 if (t > 1f) t = 1f;
-                scale = q.scale * (1f + (q.scaleFactor - 1f) * t * t);
+                scale = q.scale * (1f + (q.scaleFactor - 1f) * (float) Math.pow(t, 5));
             }
         }
 
@@ -360,14 +254,15 @@ public final class QuadRenderer {
         int r = 255, g = 255, b = 255;
         int a = (int) (alpha * 255);
 
+        float uMax = q.width;
+        float vMax = q.height;
+
         BufferBuilder buffer = Tessellator.getInstance().getBuffer();
         buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-
-        buffer.vertex(matrix, -hw, -hh, 0).texture(0f, 1f).color(r, g, b, a).next();
-        buffer.vertex(matrix,  hw, -hh, 0).texture(1f, 1f).color(r, g, b, a).next();
-        buffer.vertex(matrix,  hw,  hh, 0).texture(1f, 0f).color(r, g, b, a).next();
+        buffer.vertex(matrix, -hw, -hh, 0).texture(0f, vMax).color(r, g, b, a).next();
+        buffer.vertex(matrix,  hw, -hh, 0).texture(uMax, vMax).color(r, g, b, a).next();
+        buffer.vertex(matrix,  hw,  hh, 0).texture(uMax, 0f).color(r, g, b, a).next();
         buffer.vertex(matrix, -hw,  hh, 0).texture(0f, 0f).color(r, g, b, a).next();
-
         Tessellator.getInstance().draw();
         matrices.pop();
     }
@@ -416,14 +311,15 @@ public final class QuadRenderer {
         int r = 255, g = 255, b = 255;
         int a = (int) (alpha * 255);
 
+        float uMax = q.width;
+        float vMax = q.height;
+
         BufferBuilder buffer = Tessellator.getInstance().getBuffer();
         buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-
-        buffer.vertex(matrix, -hw, -hh, 0).texture(0f, 1f).color(r, g, b, a).next();
-        buffer.vertex(matrix,  hw, -hh, 0).texture(1f, 1f).color(r, g, b, a).next();
-        buffer.vertex(matrix,  hw,  hh, 0).texture(1f, 0f).color(r, g, b, a).next();
+        buffer.vertex(matrix, -hw, -hh, 0).texture(0f, vMax).color(r, g, b, a).next();
+        buffer.vertex(matrix,  hw, -hh, 0).texture(uMax, vMax).color(r, g, b, a).next();
+        buffer.vertex(matrix,  hw,  hh, 0).texture(uMax, 0f).color(r, g, b, a).next();
         buffer.vertex(matrix, -hw,  hh, 0).texture(0f, 0f).color(r, g, b, a).next();
-
         Tessellator.getInstance().draw();
         matrices.pop();
     }
@@ -431,110 +327,52 @@ public final class QuadRenderer {
     public enum SpinAxis { X, Y, Z }
 
     private static class Quad {
-        Vec3d position;
-        float width, height;
-        Vec3d rotation;
-        float scale;
-        Identifier texture;
-        int duration, maxDuration;
-        int prevDuration;
-        boolean fade;
-        int fadeStart;
-        boolean scaleUp;
-        int scaleStart;
-        float scaleFactor;
-        float baseAlpha;
-        SpinAxis spinAxis;
-        float rotMult;
+        Vec3d position; float width, height; Vec3d rotation; float scale; Identifier texture;
+        int duration, maxDuration; int prevDuration; boolean fade; int fadeStart;
+        boolean scaleUp; int scaleStart; float scaleFactor; float baseAlpha;
+        SpinAxis spinAxis; float rotMult;
 
         Quad(Vec3d pos, float w, float h, Vec3d rot, float s, Identifier tex,
-             int duration, boolean fade, int fadeStart,
-             boolean scaleUp, int scaleStart, float scaleFactor, float baseAlpha,
+             int duration, boolean fade, int fadeStart, boolean scaleUp, int scaleStart, float scaleFactor, float baseAlpha,
              SpinAxis spinAxis, float rotMult) {
-            this.position = pos;
-            this.width = w;
-            this.height = h;
-            this.rotation = rot;
-            this.scale = s;
-            this.texture = tex;
-            this.duration = duration;
-            this.prevDuration = duration;
-            this.maxDuration = duration;
-            this.fade = fade;
-            this.fadeStart = fadeStart;
-            this.scaleUp = scaleUp;
-            this.scaleStart = scaleStart;
-            this.scaleFactor = scaleFactor;
-            this.baseAlpha = baseAlpha;
-            this.spinAxis = spinAxis;
-            this.rotMult = rotMult;
+            this.position = pos; this.width = w; this.height = h; this.rotation = rot; this.scale = s;
+            this.texture = tex; this.duration = duration; this.prevDuration = duration; this.maxDuration = duration;
+            this.fade = fade; this.fadeStart = fadeStart; this.scaleUp = scaleUp; this.scaleStart = scaleStart;
+            this.scaleFactor = scaleFactor; this.baseAlpha = baseAlpha; this.spinAxis = spinAxis; this.rotMult = rotMult;
         }
     }
 
     private static class QuadFrameTimed {
-        Vec3d position;
-        float width, height;
-        Vec3d rotation;
-        float scale;
-        Identifier texture;
-        int durationFrames;
-        int startFrame;
-        boolean fade;
-        int fadeStartFrame;
-        boolean scaleUp;
-        int scaleStartFrame;
-        float scaleFactor;
-        float baseAlpha;
+        Vec3d position; float width, height; Vec3d rotation; float scale; Identifier texture;
+        int durationFrames; int startFrame; boolean fade; int fadeStartFrame;
+        boolean scaleUp; int scaleStartFrame; float scaleFactor; float baseAlpha;
 
         QuadFrameTimed(Vec3d pos, float w, float h, Vec3d rot, float s, Identifier tex,
-                       int durationFrames, boolean fade, int fadeStartFrame,
-                       boolean scaleUp, int scaleStartFrame, float scaleFactor, float baseAlpha,
+                       int durationFrames, boolean fade, int fadeStartFrame, boolean scaleUp, int scaleStartFrame, float scaleFactor, float baseAlpha,
                        int startFrame) {
-            this.position = pos;
-            this.width = w;
-            this.height = h;
-            this.rotation = rot;
-            this.scale = s;
-            this.texture = tex;
-            this.durationFrames = durationFrames;
-            this.startFrame = startFrame;
-            this.fade = fade;
-            this.fadeStartFrame = fadeStartFrame;
-            this.scaleUp = scaleUp;
-            this.scaleStartFrame = scaleStartFrame;
-            this.scaleFactor = scaleFactor;
-            this.baseAlpha = baseAlpha;
+            this.position = pos; this.width = w; this.height = h; this.rotation = rot; this.scale = s;
+            this.texture = tex; this.durationFrames = durationFrames; this.startFrame = startFrame;
+            this.fade = fade; this.fadeStartFrame = fadeStartFrame; this.scaleUp = scaleUp;
+            this.scaleStartFrame = scaleStartFrame; this.scaleFactor = scaleFactor; this.baseAlpha = baseAlpha;
         }
     }
 
     public static void clearAllQuads() {
-        synchronized (queuedQuads) {
-            queuedQuads.clear();
-        }
-        synchronized (queuedFrameQuads) {
-            queuedFrameQuads.clear();
-        }
+        synchronized (queuedQuads) { queuedQuads.clear(); }
+        synchronized (queuedFrameQuads) { queuedFrameQuads.clear(); }
     }
 
     public static void clearFrameQuads() {
-        synchronized (queuedFrameQuads) {
-            queuedFrameQuads.clear();
-        }
+        synchronized (queuedFrameQuads) { queuedFrameQuads.clear(); }
     }
 
-    public static void renderImmediate(MatrixStack matrices, Vec3d camPos,
-                                       Vec3d pos, float width, float height,
+    public static void renderImmediate(MatrixStack matrices, Vec3d camPos, Vec3d pos, float width, float height,
                                        Vec3d rotation, float scale, Identifier texture, float alpha) {
-        RenderSystem.disableCull();
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.enableDepthTest();
-        RenderSystem.depthMask(false);
-        RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
-        RenderSystem.setShaderTexture(0, texture);
+        RenderSystem.disableCull(); RenderSystem.enableBlend(); RenderSystem.defaultBlendFunc();
+        RenderSystem.enableDepthTest(); RenderSystem.depthMask(false);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorProgram); RenderSystem.setShaderTexture(0, texture);
 
-        int a = (int) (alpha * 255);
-        RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
+        int a = (int) (alpha * 255); RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
 
         matrices.push();
         matrices.translate(pos.x - camPos.x, pos.y - camPos.y, pos.z - camPos.z);
@@ -544,22 +382,20 @@ public final class QuadRenderer {
         matrices.scale(scale, scale, scale);
 
         Matrix4f matrix = matrices.peek().getPositionMatrix();
-        float hw = width  / 2f;
-        float hh = height / 2f;
+        float hw = width  / 2f; float hh = height / 2f;
+        float uMax = width; float vMax = height;
 
         BufferBuilder buffer = Tessellator.getInstance().getBuffer();
         buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-        buffer.vertex(matrix, -hw, -hh, 0).texture(0f, 1f).color(255, 255, 255, a).next();
-        buffer.vertex(matrix,  hw, -hh, 0).texture(1f, 1f).color(255, 255, 255, a).next();
-        buffer.vertex(matrix,  hw,  hh, 0).texture(1f, 0f).color(255, 255, 255, a).next();
+        buffer.vertex(matrix, -hw, -hh, 0).texture(0f, vMax).color(255, 255, 255, a).next();
+        buffer.vertex(matrix,  hw, -hh, 0).texture(uMax, vMax).color(255, 255, 255, a).next();
+        buffer.vertex(matrix,  hw,  hh, 0).texture(uMax, 0f).color(255, 255, 255, a).next();
         buffer.vertex(matrix, -hw,  hh, 0).texture(0f, 0f).color(255, 255, 255, a).next();
         Tessellator.getInstance().draw();
 
         matrices.pop();
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        RenderSystem.depthMask(true);
-        RenderSystem.enableCull();
-        RenderSystem.disableBlend();
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f); RenderSystem.depthMask(true);
+        RenderSystem.enableCull(); RenderSystem.disableBlend();
     }
 
     public static class RenderableQuad extends CubeRenderer.RenderableObject {
@@ -571,29 +407,20 @@ public final class QuadRenderer {
 
         public RenderableQuad(Quad quad, Vec3d camPos, float partialTicks) {
             super(quad, quad.position.squaredDistanceTo(camPos), partialTicks, false, false);
-            this.quad = quad;
-            this.quadFrameTimed = null;
-            this.isFrameTimed = false;
-            this.distanceSq = quad.position.squaredDistanceTo(camPos);
-            this.partialTicks = partialTicks;
+            this.quad = quad; this.quadFrameTimed = null; this.isFrameTimed = false;
+            this.distanceSq = quad.position.squaredDistanceTo(camPos); this.partialTicks = partialTicks;
         }
 
         public RenderableQuad(QuadFrameTimed quad, Vec3d camPos) {
             super(quad, quad.position.squaredDistanceTo(camPos), 0, false, true);
-            this.quad = null;
-            this.quadFrameTimed = quad;
-            this.isFrameTimed = true;
-            this.distanceSq = quad.position.squaredDistanceTo(camPos);
-            this.partialTicks = 0;
+            this.quad = null; this.quadFrameTimed = quad; this.isFrameTimed = true;
+            this.distanceSq = quad.position.squaredDistanceTo(camPos); this.partialTicks = 0;
         }
 
         @Override
         public void render(MatrixStack matrices, Vec3d camPos) {
-            if (isFrameTimed) {
-                renderQuadFrameTimed(matrices, camPos, quadFrameTimed);
-            } else {
-                renderQuad(matrices, camPos, quad, partialTicks, true);
-            }
+            if (isFrameTimed) renderQuadFrameTimed(matrices, camPos, quadFrameTimed);
+            else renderQuad(matrices, camPos, quad, partialTicks, true);
         }
 
         public double getDistanceSq()  { return distanceSq; }
@@ -603,19 +430,12 @@ public final class QuadRenderer {
 
     public static List<RenderableQuad> getRenderableQuads(Vec3d camPos, float partialTicks) {
         List<RenderableQuad> result = new ArrayList<>();
-
         synchronized (queuedQuads) {
-            for (Quad quad : queuedQuads) {
-                result.add(new RenderableQuad(quad, camPos, partialTicks));
-            }
+            for (Quad quad : queuedQuads) result.add(new RenderableQuad(quad, camPos, partialTicks));
         }
-
         synchronized (queuedFrameQuads) {
-            for (QuadFrameTimed quad : queuedFrameQuads) {
-                result.add(new RenderableQuad(quad, camPos));
-            }
+            for (QuadFrameTimed quad : queuedFrameQuads) result.add(new RenderableQuad(quad, camPos));
         }
-
         return result;
     }
 }

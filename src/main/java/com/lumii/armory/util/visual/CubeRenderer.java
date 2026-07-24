@@ -81,10 +81,6 @@ public final class CubeRenderer {
         public Identifier getLeft()   { return textures[LEFT]; }
     }
 
-    /**
-     * Schedule a cube to be rendered on the server and sent to all clients.
-     * Call this from server-side code.
-     */
     public static void scheduleCommon(ServerWorld world, Vec3d pos, float width, float height, float depth,
                                       Vec3d rotation, float scale, TextureFaceData textures,
                                       int duration, boolean fade, int fadeStart,
@@ -92,36 +88,18 @@ public final class CubeRenderer {
                                       float alpha) {
 
         PacketByteBuf buf = PacketByteBufs.create();
-
-        buf.writeDouble(pos.x);
-        buf.writeDouble(pos.y);
-        buf.writeDouble(pos.z);
-
-        buf.writeFloat(width);
-        buf.writeFloat(height);
-        buf.writeFloat(depth);
-
-        buf.writeDouble(rotation.x);
-        buf.writeDouble(rotation.y);
-        buf.writeDouble(rotation.z);
-
+        buf.writeDouble(pos.x); buf.writeDouble(pos.y); buf.writeDouble(pos.z);
+        buf.writeFloat(width); buf.writeFloat(height); buf.writeFloat(depth);
+        buf.writeDouble(rotation.x); buf.writeDouble(rotation.y); buf.writeDouble(rotation.z);
         buf.writeFloat(scale);
-
         buf.writeString(textures.getFront().toString());
         buf.writeString(textures.getBack().toString());
         buf.writeString(textures.getTop().toString());
         buf.writeString(textures.getBottom().toString());
         buf.writeString(textures.getRight().toString());
         buf.writeString(textures.getLeft().toString());
-
-        buf.writeInt(duration);
-        buf.writeBoolean(fade);
-        buf.writeInt(fadeStart);
-
-        buf.writeBoolean(scaleUp);
-        buf.writeInt(scaleStart);
-        buf.writeFloat(scaleFactor);
-
+        buf.writeInt(duration); buf.writeBoolean(fade); buf.writeInt(fadeStart);
+        buf.writeBoolean(scaleUp); buf.writeInt(scaleStart); buf.writeFloat(scaleFactor);
         buf.writeFloat(alpha);
 
         for (ServerPlayerEntity player : world.getPlayers()) {
@@ -129,10 +107,6 @@ public final class CubeRenderer {
         }
     }
 
-    /**
-     * Schedule a cube to be rendered only on the client with tick-based timing.
-     * Call this from client-side code.
-     */
     public static void scheduleClient(Vec3d pos, float width, float height, float depth,
                                       Vec3d rotation, float scale, TextureFaceData textures,
                                       int duration, boolean fade, int fadeStart,
@@ -145,40 +119,21 @@ public final class CubeRenderer {
         }
     }
 
-    /**
-     * Schedule a cube to be rendered only on the client with precision timing.
-     * This is useful for complex math-driven animations that need frame-accurate timing.
-     * 240 Of the timing unit here equals 1 second.
-     * Automatically translates the given timing variables to the player's current fps.
-     * This means that the cube always runs in 240 fps.
-     */
     public static void scheduleClient240Hz(Vec3d pos, float width, float height, float depth,
                                            Vec3d rotation, float scale, TextureFaceData textures,
                                            int duration, boolean fade, int fadeStart,
                                            boolean scaleUp, int scaleStart, float scaleFactor,
                                            float baseAlpha) {
-
         int currentFPS = MinecraftClient.getInstance().getCurrentFps();
         if (duration == 1) {
-            int durationA = 1;
             int fadeStartA = Math.round(fadeStart * (currentFPS / 240f));
             int scaleStartA = Math.round(scaleStart * (currentFPS / 240f));
-
-            scheduleClientFrames(pos, width, height, depth,
-                    rotation, scale, textures,
-                    durationA, fade, fadeStartA,
-                    scaleUp, scaleStartA, scaleFactor,
-                    baseAlpha);
+            scheduleClientFrames(pos, width, height, depth, rotation, scale, textures, 1, fade, fadeStartA, scaleUp, scaleStartA, scaleFactor, baseAlpha);
         } else {
             int durationA = Math.max(1, Math.round(duration * (currentFPS / 240f)));
             int fadeStartA = Math.round(fadeStart * (currentFPS / 240f));
             int scaleStartA = Math.round(scaleStart * (currentFPS / 240f));
-
-            scheduleClientFrames(pos, width, height, depth,
-                    rotation, scale, textures,
-                    durationA, fade, fadeStartA,
-                    scaleUp, scaleStartA, scaleFactor,
-                    baseAlpha);
+            scheduleClientFrames(pos, width, height, depth, rotation, scale, textures, durationA, fade, fadeStartA, scaleUp, scaleStartA, scaleFactor, baseAlpha);
         }
     }
 
@@ -207,24 +162,18 @@ public final class CubeRenderer {
                         cube.prevDuration = cube.duration;
                         cube.duration--;
                     }
-                    if (cube.duration <= 0) {
-                        cubesToRemove.add(cube);
-                    }
+                    if (cube.duration <= 0) cubesToRemove.add(cube);
                 }
                 queuedCubes.removeAll(cubesToRemove);
             }
         }
-
         synchronized (queuedFrameCubes) {
             if (!queuedFrameCubes.isEmpty()) {
                 frameCounter++;
-
                 frameCubesToRemove.clear();
                 for (CubeFrameTimed cube : queuedFrameCubes) {
                     int framesLived = frameCounter - cube.startFrame;
-                    if (framesLived >= cube.durationFrames) {
-                        frameCubesToRemove.add(cube);
-                    }
+                    if (framesLived >= cube.durationFrames) frameCubesToRemove.add(cube);
                 }
                 queuedFrameCubes.removeAll(frameCubesToRemove);
             } else {
@@ -234,54 +183,27 @@ public final class CubeRenderer {
     }
 
     public static void init() {
-        ClientTickEvents.START_CLIENT_TICK.register(client -> {
-            clientTick();
-        });
+        ClientTickEvents.START_CLIENT_TICK.register(client -> clientTick());
 
         ClientPlayNetworking.registerGlobalReceiver(CUBE_PACKET_ID,
                 (client, handler, buf, responseSender) -> {
-
-                    double x = buf.readDouble();
-                    double y = buf.readDouble();
-                    double z = buf.readDouble();
+                    double x = buf.readDouble(); double y = buf.readDouble(); double z = buf.readDouble();
                     Vec3d pos = new Vec3d(x, y, z);
-
-                    float width = buf.readFloat();
-                    float height = buf.readFloat();
-                    float depth = buf.readFloat();
-
-                    double rotX = buf.readDouble();
-                    double rotY = buf.readDouble();
-                    double rotZ = buf.readDouble();
+                    float width = buf.readFloat(); float height = buf.readFloat(); float depth = buf.readFloat();
+                    double rotX = buf.readDouble(); double rotY = buf.readDouble(); double rotZ = buf.readDouble();
                     Vec3d rotation = new Vec3d(rotX, rotY, rotZ);
-
                     float scale = buf.readFloat();
-
-                    Identifier front  = new Identifier(buf.readString());
-                    Identifier back   = new Identifier(buf.readString());
-                    Identifier top    = new Identifier(buf.readString());
-                    Identifier bottom = new Identifier(buf.readString());
-                    Identifier right  = new Identifier(buf.readString());
-                    Identifier left   = new Identifier(buf.readString());
+                    Identifier front  = new Identifier(buf.readString()); Identifier back   = new Identifier(buf.readString());
+                    Identifier top    = new Identifier(buf.readString()); Identifier bottom = new Identifier(buf.readString());
+                    Identifier right  = new Identifier(buf.readString()); Identifier left   = new Identifier(buf.readString());
                     TextureFaceData textures = new TextureFaceData(front, back, top, bottom, right, left);
-
-                    int duration = buf.readInt();
-                    boolean fade = buf.readBoolean();
-                    int fadeStart = buf.readInt();
-
-                    boolean scaleUp = buf.readBoolean();
-                    int scaleStart = buf.readInt();
-                    float scaleFactor = buf.readFloat();
-
+                    int duration = buf.readInt(); boolean fade = buf.readBoolean(); int fadeStart = buf.readInt();
+                    boolean scaleUp = buf.readBoolean(); int scaleStart = buf.readInt(); float scaleFactor = buf.readFloat();
                     float alpha = buf.readFloat();
 
-                    client.execute(() -> {
-                        scheduleClient(pos, width, height, depth, rotation, scale, textures,
-                                duration, fade, fadeStart, scaleUp, scaleStart, scaleFactor, alpha);
-                    });
+                    client.execute(() -> scheduleClient(pos, width, height, depth, rotation, scale, textures, duration, fade, fadeStart, scaleUp, scaleStart, scaleFactor, alpha));
                 }
         );
-
         WorldRenderEvents.LAST.register(CubeRenderer::renderQueuedObjects);
     }
 
@@ -337,60 +259,61 @@ public final class CubeRenderer {
     private static void renderFaceGeometry(BufferBuilder buffer, Tessellator tessellator,
                                            Matrix4f matrix, TextureFaceData textures,
                                            int faceIndex, float hw, float hh, float hd,
+                                           float uMax, float vMax,
                                            int r, int g, int b, int a) {
         switch (faceIndex) {
             case TextureFaceData.FRONT -> {
                 RenderSystem.setShaderTexture(0, textures.getFront());
                 buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-                buffer.vertex(matrix, -hw, -hh, -hd).texture(0f, 1f).color(r, g, b, a).next();
+                buffer.vertex(matrix, -hw, -hh, -hd).texture(0f, vMax).color(r, g, b, a).next();
                 buffer.vertex(matrix, -hw,  hh, -hd).texture(0f, 0f).color(r, g, b, a).next();
-                buffer.vertex(matrix,  hw,  hh, -hd).texture(1f, 0f).color(r, g, b, a).next();
-                buffer.vertex(matrix,  hw, -hh, -hd).texture(1f, 1f).color(r, g, b, a).next();
+                buffer.vertex(matrix,  hw,  hh, -hd).texture(uMax, 0f).color(r, g, b, a).next();
+                buffer.vertex(matrix,  hw, -hh, -hd).texture(uMax, vMax).color(r, g, b, a).next();
                 tessellator.draw();
             }
             case TextureFaceData.BACK -> {
                 RenderSystem.setShaderTexture(0, textures.getBack());
                 buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-                buffer.vertex(matrix, -hw, -hh,  hd).texture(1f, 1f).color(r, g, b, a).next();
-                buffer.vertex(matrix,  hw, -hh,  hd).texture(0f, 1f).color(r, g, b, a).next();
+                buffer.vertex(matrix, -hw, -hh,  hd).texture(uMax, vMax).color(r, g, b, a).next();
+                buffer.vertex(matrix,  hw, -hh,  hd).texture(0f, vMax).color(r, g, b, a).next();
                 buffer.vertex(matrix,  hw,  hh,  hd).texture(0f, 0f).color(r, g, b, a).next();
-                buffer.vertex(matrix, -hw,  hh,  hd).texture(1f, 0f).color(r, g, b, a).next();
+                buffer.vertex(matrix, -hw,  hh,  hd).texture(uMax, 0f).color(r, g, b, a).next();
                 tessellator.draw();
             }
             case TextureFaceData.TOP -> {
                 RenderSystem.setShaderTexture(0, textures.getTop());
                 buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-                buffer.vertex(matrix, -hw,  hh, -hd).texture(0f, 1f).color(r, g, b, a).next();
+                buffer.vertex(matrix, -hw,  hh, -hd).texture(0f, vMax).color(r, g, b, a).next();
                 buffer.vertex(matrix, -hw,  hh,  hd).texture(0f, 0f).color(r, g, b, a).next();
-                buffer.vertex(matrix,  hw,  hh,  hd).texture(1f, 0f).color(r, g, b, a).next();
-                buffer.vertex(matrix,  hw,  hh, -hd).texture(1f, 1f).color(r, g, b, a).next();
+                buffer.vertex(matrix,  hw,  hh,  hd).texture(uMax, 0f).color(r, g, b, a).next();
+                buffer.vertex(matrix,  hw,  hh, -hd).texture(uMax, vMax).color(r, g, b, a).next();
                 tessellator.draw();
             }
             case TextureFaceData.BOTTOM -> {
                 RenderSystem.setShaderTexture(0, textures.getBottom());
                 buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
                 buffer.vertex(matrix, -hw, -hh, -hd).texture(0f, 0f).color(r, g, b, a).next();
-                buffer.vertex(matrix,  hw, -hh, -hd).texture(1f, 0f).color(r, g, b, a).next();
-                buffer.vertex(matrix,  hw, -hh,  hd).texture(1f, 1f).color(r, g, b, a).next();
-                buffer.vertex(matrix, -hw, -hh,  hd).texture(0f, 1f).color(r, g, b, a).next();
+                buffer.vertex(matrix,  hw, -hh, -hd).texture(uMax, 0f).color(r, g, b, a).next();
+                buffer.vertex(matrix,  hw, -hh,  hd).texture(uMax, vMax).color(r, g, b, a).next();
+                buffer.vertex(matrix, -hw, -hh,  hd).texture(0f, vMax).color(r, g, b, a).next();
                 tessellator.draw();
             }
             case TextureFaceData.RIGHT -> {
                 RenderSystem.setShaderTexture(0, textures.getRight());
                 buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-                buffer.vertex(matrix,  hw, -hh, -hd).texture(0f, 1f).color(r, g, b, a).next();
+                buffer.vertex(matrix,  hw, -hh, -hd).texture(0f, vMax).color(r, g, b, a).next();
                 buffer.vertex(matrix,  hw,  hh, -hd).texture(0f, 0f).color(r, g, b, a).next();
-                buffer.vertex(matrix,  hw,  hh,  hd).texture(1f, 0f).color(r, g, b, a).next();
-                buffer.vertex(matrix,  hw, -hh,  hd).texture(1f, 1f).color(r, g, b, a).next();
+                buffer.vertex(matrix,  hw,  hh,  hd).texture(uMax, 0f).color(r, g, b, a).next();
+                buffer.vertex(matrix,  hw, -hh,  hd).texture(uMax, vMax).color(r, g, b, a).next();
                 tessellator.draw();
             }
             case TextureFaceData.LEFT -> {
                 RenderSystem.setShaderTexture(0, textures.getLeft());
                 buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-                buffer.vertex(matrix, -hw, -hh, -hd).texture(1f, 1f).color(r, g, b, a).next();
-                buffer.vertex(matrix, -hw, -hh,  hd).texture(0f, 1f).color(r, g, b, a).next();
+                buffer.vertex(matrix, -hw, -hh, -hd).texture(uMax, vMax).color(r, g, b, a).next();
+                buffer.vertex(matrix, -hw, -hh,  hd).texture(0f, vMax).color(r, g, b, a).next();
                 buffer.vertex(matrix, -hw,  hh,  hd).texture(0f, 0f).color(r, g, b, a).next();
-                buffer.vertex(matrix, -hw,  hh, -hd).texture(1f, 0f).color(r, g, b, a).next();
+                buffer.vertex(matrix, -hw,  hh, -hd).texture(uMax, 0f).color(r, g, b, a).next();
                 tessellator.draw();
             }
         }
@@ -411,8 +334,21 @@ public final class CubeRenderer {
         float hd = cube.depth  / 2f;
         int a = (int) (alpha * 255);
 
+        float uMax = 1f, vMax = 1f;
+        switch (faceIndex) {
+            case TextureFaceData.FRONT:
+            case TextureFaceData.BACK:
+                uMax = cube.width; vMax = cube.height; break;
+            case TextureFaceData.TOP:
+            case TextureFaceData.BOTTOM:
+                uMax = cube.width; vMax = cube.depth; break;
+            case TextureFaceData.RIGHT:
+            case TextureFaceData.LEFT:
+                uMax = cube.depth; vMax = cube.height; break;
+        }
+
         renderFaceGeometry(Tessellator.getInstance().getBuffer(), Tessellator.getInstance(),
-                matrix, cube.textures, faceIndex, hw, hh, hd, 255, 255, 255, a);
+                matrix, cube.textures, faceIndex, hw, hh, hd, uMax, vMax, 255, 255, 255, a);
         matrices.pop();
     }
 
@@ -431,8 +367,21 @@ public final class CubeRenderer {
         float hd = cube.depth  / 2f;
         int a = (int) (alpha * 255);
 
+        float uMax = 1f, vMax = 1f;
+        switch (faceIndex) {
+            case TextureFaceData.FRONT:
+            case TextureFaceData.BACK:
+                uMax = cube.width; vMax = cube.height; break;
+            case TextureFaceData.TOP:
+            case TextureFaceData.BOTTOM:
+                uMax = cube.width; vMax = cube.depth; break;
+            case TextureFaceData.RIGHT:
+            case TextureFaceData.LEFT:
+                uMax = cube.depth; vMax = cube.height; break;
+        }
+
         renderFaceGeometry(Tessellator.getInstance().getBuffer(), Tessellator.getInstance(),
-                matrix, cube.textures, faceIndex, hw, hh, hd, 255, 255, 255, a);
+                matrix, cube.textures, faceIndex, hw, hh, hd, uMax, vMax, 255, 255, 255, a);
         matrices.pop();
     }
 
@@ -454,22 +403,11 @@ public final class CubeRenderer {
         Cube(Vec3d pos, float w, float h, float d, Vec3d rot, float s, TextureFaceData tex,
              int duration, boolean fade, int fadeStart,
              boolean scaleUp, int scaleStart, float scaleFactor, float baseAlpha) {
-            this.position = pos;
-            this.width = w;
-            this.height = h;
-            this.depth = d;
-            this.rotation = rot;
-            this.scale = s;
-            this.textures = tex;
-            this.duration = duration;
-            this.prevDuration = duration;
-            this.maxDuration = duration;
-            this.fade = fade;
-            this.fadeStart = fadeStart;
-            this.scaleUp = scaleUp;
-            this.scaleStart = scaleStart;
-            this.scaleFactor = scaleFactor;
-            this.baseAlpha = baseAlpha;
+            this.position = pos; this.width = w; this.height = h; this.depth = d;
+            this.rotation = rot; this.scale = s; this.textures = tex;
+            this.duration = duration; this.prevDuration = duration; this.maxDuration = duration;
+            this.fade = fade; this.fadeStart = fadeStart; this.scaleUp = scaleUp;
+            this.scaleStart = scaleStart; this.scaleFactor = scaleFactor; this.baseAlpha = baseAlpha;
         }
     }
 
@@ -492,37 +430,21 @@ public final class CubeRenderer {
                        int durationFrames, boolean fade, int fadeStartFrame,
                        boolean scaleUp, int scaleStartFrame, float scaleFactor, float baseAlpha,
                        int startFrame) {
-            this.position = pos;
-            this.width = w;
-            this.height = h;
-            this.depth = d;
-            this.rotation = rot;
-            this.scale = s;
-            this.textures = tex;
-            this.durationFrames = durationFrames;
-            this.startFrame = startFrame;
-            this.fade = fade;
-            this.fadeStartFrame = fadeStartFrame;
-            this.scaleUp = scaleUp;
-            this.scaleStartFrame = scaleStartFrame;
-            this.scaleFactor = scaleFactor;
-            this.baseAlpha = baseAlpha;
+            this.position = pos; this.width = w; this.height = h; this.depth = d;
+            this.rotation = rot; this.scale = s; this.textures = tex;
+            this.durationFrames = durationFrames; this.startFrame = startFrame;
+            this.fade = fade; this.fadeStartFrame = fadeStartFrame; this.scaleUp = scaleUp;
+            this.scaleStartFrame = scaleStartFrame; this.scaleFactor = scaleFactor; this.baseAlpha = baseAlpha;
         }
     }
 
     public static void clearAllCubes() {
-        synchronized (queuedCubes) {
-            queuedCubes.clear();
-        }
-        synchronized (queuedFrameCubes) {
-            queuedFrameCubes.clear();
-        }
+        synchronized (queuedCubes) { queuedCubes.clear(); }
+        synchronized (queuedFrameCubes) { queuedFrameCubes.clear(); }
     }
 
     public static void clearFrameQuads() {
-        synchronized (queuedCubes) {
-            queuedCubes.clear();
-        }
+        synchronized (queuedCubes) { queuedCubes.clear(); }
     }
 
     public static class RenderableObject {
@@ -532,13 +454,9 @@ public final class CubeRenderer {
         protected final boolean isCube;
         protected final boolean isFrameTimed;
 
-        public RenderableObject(Object object, double distanceSq, float partialTicks,
-                                boolean isCube, boolean isFrameTimed) {
-            this.object = object;
-            this.distanceSq = distanceSq;
-            this.partialTicks = partialTicks;
-            this.isCube = isCube;
-            this.isFrameTimed = isFrameTimed;
+        public RenderableObject(Object object, double distanceSq, float partialTicks, boolean isCube, boolean isFrameTimed) {
+            this.object = object; this.distanceSq = distanceSq; this.partialTicks = partialTicks;
+            this.isCube = isCube; this.isFrameTimed = isFrameTimed;
         }
 
         RenderableObject(QuadRenderer.RenderableQuad quad) {
@@ -546,9 +464,7 @@ public final class CubeRenderer {
         }
 
         public void render(MatrixStack matrices, Vec3d camPos) {
-            if (!isCube) {
-                ((QuadRenderer.RenderableQuad) object).render(matrices, camPos);
-            }
+            if (!isCube) ((QuadRenderer.RenderableQuad) object).render(matrices, camPos);
         }
     }
 
@@ -560,19 +476,14 @@ public final class CubeRenderer {
         private final Object cubeObj;
         private final boolean isFrameTimedCube;
 
-        private RenderableCubeFace(Object cubeObj, boolean isFrameTimedCube,
-                                   int faceIndex, double distanceSq,
-                                   float partialTicks, float resolvedAlpha, float resolvedScale) {
+        private RenderableCubeFace(Object cubeObj, boolean isFrameTimedCube, int faceIndex, double distanceSq, float partialTicks, float resolvedAlpha, float resolvedScale) {
             super(cubeObj, distanceSq, partialTicks, true, isFrameTimedCube);
-            this.cubeObj = cubeObj;
-            this.faceIndex = faceIndex;
-            this.resolvedAlpha = resolvedAlpha;
-            this.resolvedScale = resolvedScale;
+            this.cubeObj = cubeObj; this.faceIndex = faceIndex;
+            this.resolvedAlpha = resolvedAlpha; this.resolvedScale = resolvedScale;
             this.isFrameTimedCube = isFrameTimedCube;
         }
 
-        private static Vec3d faceCenterWorld(Vec3d cubePos, float hw, float hh, float hd,
-                                             Vec3d rotation, int faceIndex) {
+        private static Vec3d faceCenterWorld(Vec3d cubePos, float hw, float hh, float hd, Vec3d rotation, int faceIndex) {
             float lx, ly, lz;
             switch (faceIndex) {
                 case TextureFaceData.FRONT  -> { lx =  0;  ly =  0;  lz = -hd; }
@@ -674,13 +585,8 @@ public final class CubeRenderer {
 
         @Override
         public void render(MatrixStack matrices, Vec3d camPos) {
-            if (isFrameTimedCube) {
-                renderCubeFrameTimedFace(matrices, camPos, (CubeFrameTimed) cubeObj,
-                        faceIndex, resolvedAlpha, resolvedScale);
-            } else {
-                renderCubeFace(matrices, camPos, (Cube) cubeObj,
-                        faceIndex, resolvedAlpha, resolvedScale);
-            }
+            if (isFrameTimedCube) renderCubeFrameTimedFace(matrices, camPos, (CubeFrameTimed) cubeObj, faceIndex, resolvedAlpha, resolvedScale);
+            else renderCubeFace(matrices, camPos, (Cube) cubeObj, faceIndex, resolvedAlpha, resolvedScale);
         }
     }
 }

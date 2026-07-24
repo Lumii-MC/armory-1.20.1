@@ -1,6 +1,7 @@
 package com.lumii.armory.registry;
 
 import com.lumii.armory.Armory;
+import com.lumii.armory.packets.DissonanceEffectPacket;
 import com.lumii.armory.packets.ParticleSpawnPacket;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -12,6 +13,7 @@ import team.lodestar.lodestone.systems.screenshake.ScreenshakeInstance;
 public class ArmoryPackets {
     public static final Identifier PARTICLE_SPAWN_ID = new Identifier("armory", "particle_spawn");
     public static final Identifier SHAKE_ID = new Identifier("armory", "screenshake");
+    public static final Identifier DISSONANCE_VFX_ID = new Identifier("armory", "dis_vfx");
 
     public static void initServer(){
         ServerPlayNetworking.registerGlobalReceiver(PARTICLE_SPAWN_ID, ((server,
@@ -37,5 +39,10 @@ public class ArmoryPackets {
                 ScreenshakeHandler.addScreenshake(instance);
             });
         });
+
+        ClientPlayNetworking.registerGlobalReceiver(DISSONANCE_VFX_ID, (client, handler, buf, sender) ->{
+            DissonanceEffectPacket packet = new DissonanceEffectPacket(buf);
+            packet.handle(client);
+        } );
     }
 }
