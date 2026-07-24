@@ -20,7 +20,7 @@ public class ArmoryPackets {
                                                                          buf, sender) -> {
             ParticleSpawnPacket packet = new ParticleSpawnPacket(buf);
                     server.execute(() -> {
-
+                        // why the fuck do you need a server init if you don't have anything here
                     });
         }));
     }

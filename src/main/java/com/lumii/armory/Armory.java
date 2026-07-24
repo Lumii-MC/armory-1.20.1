@@ -1,6 +1,5 @@
 package com.lumii.armory;
 
-import com.lumii.armory.registry.ArmoryDamageRegistry;
 import com.lumii.armory.registry.ArmoryItemRegistry;
 import com.lumii.armory.registry.ArmoryPackets;
 import com.lumii.armory.registry.ArmorySoundsRegistry;

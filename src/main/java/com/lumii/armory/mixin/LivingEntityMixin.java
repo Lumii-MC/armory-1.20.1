@@ -23,14 +23,14 @@ public abstract class LivingEntityMixin {
 
     @Shadow public abstract Vec3d applyMovementInput(Vec3d movementInput, float slipperiness);
 
-    @Inject(method = "travel", at = @At("HEAD"), cancellable = true)
-    private void chainEntity(Vec3d movementInput, CallbackInfo ci) {
-        LivingEntity self = (LivingEntity)(Object)this;
-
-        if (ChainEntityUtils.isChained(self)) {
-            ci.cancel();
-        }
-    }
+//    @Inject(method = "travel", at = @At("HEAD"), cancellable = true)
+//    private void chainEntity(Vec3d movementInput, CallbackInfo ci) {
+//        LivingEntity self = (LivingEntity)(Object)this;
+//
+//        if (ChainEntityUtils.isChained(self)) {
+//            ci.cancel();
+//        }
+//    }
 
     @Inject(method = "isDead", at = @At("HEAD"), cancellable = true)
     private void isDead(CallbackInfoReturnable<Boolean> cir) {

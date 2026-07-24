@@ -3,7 +3,7 @@
   "package": "com.lumii.armory.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "ExampleMixin",
+    "EntityMixin",
     "LivingEntityMixin"
   ],
   "injectors": {
