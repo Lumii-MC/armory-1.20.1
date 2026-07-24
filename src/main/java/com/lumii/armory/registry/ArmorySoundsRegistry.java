@@ -14,6 +14,7 @@ public interface ArmorySoundsRegistry {
 
 
     SoundEvent SLASH = create("slash");
+    SoundEvent EXECUTION = create("event.execution");
 
     private static SoundEvent create(String path) {
         SoundEvent soundEvent = SoundEvent.of(new Identifier(Armory.MOD_ID, path));

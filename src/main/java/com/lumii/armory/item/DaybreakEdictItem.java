@@ -7,6 +7,7 @@ import com.lumii.armory.registry.ArmoryPackets;
 import com.lumii.armory.registry.ArmorySoundsRegistry;
 import com.lumii.armory.util.ChainEntityUtils;
 import com.lumii.armory.util.time.TickSchedulerServer;
+import com.lumii.armory.util.time.TimeUtils;
 import com.lumii.armory.util.visual.QuadRenderer;
 import io.netty.buffer.Unpooled;
 import net.chemthunder.lux.api.LuxFlashRenderer;
@@ -23,6 +24,7 @@ import net.minecraft.item.SwordItem;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
@@ -64,20 +66,15 @@ public class DaybreakEdictItem extends SwordItem implements SimpleModelItem, Cus
     }
 
     @Override
-    public boolean postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+    public boolean postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {;
+        target.damage(ArmoryDamageRegistry.daybreak(target), 2);
 
         target.playSound(ArmorySoundsRegistry.SLASH, 1, 1);
 
-        if (!ChainEntityUtils.isChained(target)
-                && target.getHealth() <= 4.0F) {
+        if (!ChainEntityUtils.isChained(target)  && target.getHealth() <= 4.0F) {
 
             target.setHealth(2.0F);
             ChainEntityUtils.setChained(target, true);
-            return true;
-        }
-
-        if (ChainEntityUtils.isChained(target)) {
-            target.damage(ArmoryDamageRegistry.daybreak(target), Float.MAX_VALUE);
             if (!target.getWorld().isClient() && target != null) {
                 Vec3d targetPos = target.getPos().add(0, 1.6, 0);
                 Color startColor = new Color(0x967A49);
@@ -88,23 +85,24 @@ public class DaybreakEdictItem extends SwordItem implements SimpleModelItem, Cus
 
                 ServerPlayerEntity srPlayer = (ServerPlayerEntity) attacker;
                 if (srPlayer != null) {
-                    int delayTicks = 20;
+                    int delayTicks = TimeUtils.seconds(2);
                     for (ServerPlayerEntity player : srPlayer.getServerWorld().getPlayers()) {
-                        QuadRenderer.scheduleCommon(player.getServerWorld(), targetPos.subtract(0, 1.499, 0), 1, 1,
-                                new Vec3d(90, 0, 0), 4 ,Armory.id("textures/vfx/grd.png"), delayTicks, false, 1,
-                                false, 1, 1,
+                        QuadRenderer.scheduleCommon(player.getServerWorld(), targetPos.subtract(0, 1.59, 0), 1, 1,
+                                new Vec3d(90, 0, 0), 2 ,Armory.id("textures/vfx/execution_ring.png"), delayTicks, false, 1,
+                                true, 1, 10f,
                                 1, QuadRenderer.SpinAxis.Z, 5f);
                     }
                     TickSchedulerServer.schedule(delayTicks, () -> {
                         // I wish i didn't look at that thing
-                        for (int i = 0; i < 15; i++) {
+                        // LMFAO
+                        for (int i = 0; i < 25; i++) {
                             ServerPlayNetworking.send(srPlayer, ArmoryPackets.PARTICLE_SPAWN_ID, buf);
                         }
                         QuadRenderer.scheduleCommon(srPlayer.getServerWorld(),
                                 targetPos,
                                 1, 1,
-                                new Vec3d(0, 0, 0), 4,
-                                Armory.id("textures/vfx/circ.png"),
+                                new Vec3d(0, 0, 0), 10,
+                                Armory.id("textures/vfx/shockwave.png"),
                                 20 * 10,
                                 true, 1,
                                 true, 1, 450,
@@ -113,24 +111,47 @@ public class DaybreakEdictItem extends SwordItem implements SimpleModelItem, Cus
                         QuadRenderer.scheduleCommon(srPlayer.getServerWorld(),
                                 targetPos,
                                 1, 1,
-                                new Vec3d(0, 90, 0), 4,
-                                Armory.id("textures/vfx/circ.png"),
+                                new Vec3d(0, 90, 0), 10,
+                                Armory.id("textures/vfx/shockwave.png"),
                                 20 * 10,
                                 true, 1,
-                                true, 1, 450,
+                                true, 0, 450,
+                                0.75f);
+
+                        QuadRenderer.scheduleCommon(srPlayer.getServerWorld(),
+                                targetPos,
+                                1, 1,
+                                new Vec3d(90, 0, 0), 10,
+                                Armory.id("textures/vfx/shockwave.png"),
+                                20 * 10,
+                                true, 1,
+                                true, 0, 450,
                                 0.75f);
 
                         for (ServerPlayerEntity player : srPlayer.getServerWorld().getPlayers()) {
-                            LuxFlashRenderer.sendFlash(player, new Color(255, 219, 136, 62).getRGB());
+                            LuxFlashRenderer.sendFlash(player, new Color(243, 207, 117, 255).getRGB());
                             ServerPlayNetworking.send(srPlayer, ArmoryPackets.SHAKE_ID, PacketByteBufs.empty());
+                            target.damage(ArmoryDamageRegistry.daybreak(target), Float.MAX_VALUE);
                         }
 
+
                         ChainEntityUtils.setChained(target, false);
-                    });
+
+                        target.getWorld().playSound(null,
+                                target.getBlockPos(),
+                                ArmorySoundsRegistry.EXECUTION,
+                                SoundCategory.MASTER,
+                                2,
+                                1);
+                        }
+                    );
                 }
+                if (ChainEntityUtils.isChained(target) && target.isDead()){
+                    ChainEntityUtils.setChained(target, false);
+                }
+                return true;
             }
         }
-
         return super.postHit(stack, target, attacker);
     }
 

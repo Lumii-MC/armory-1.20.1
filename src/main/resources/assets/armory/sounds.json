@@ -4,5 +4,11 @@
     "sounds": [
       "armory:slash"
     ]
+  },
+  "event.execution": {
+    "subtitle": "sounds.armory.execution",
+    "sounds": [
+      "armory:event/execution"
+    ]
   }
 }

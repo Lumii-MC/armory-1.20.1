@@ -53,7 +53,7 @@ public class ParticleSpawnPacket {
 
     public static void spawnParticles(World world, Vec3d pos, Color startColor, Color endColor){
         WorldParticleBuilder.create(LodestoneParticleRegistry.SMOKE_PARTICLE)
-                .setScaleData(GenericParticleData.create(2f).setCoefficient(1f).build())
+                .setScaleData(GenericParticleData.create(3).setCoefficient(5f).build())
                 .setTransparencyData(GenericParticleData.create(5f).build())
                 .setColorData(ColorParticleData.create(startColor, endColor).setCoefficient(1.5f)
                         .setEasing(Easing.LINEAR).build())
@@ -68,6 +68,7 @@ public class ParticleSpawnPacket {
                 .setColorData(ColorParticleData.create(startColor, endColor).setCoefficient(1.5f)
                         .setEasing(Easing.LINEAR).build())
                 .setLifetime(TimeUtils.seconds(5))
+                .enableNoClip()
                 .setSpinData(SpinParticleData.createRandomDirection(Random.create(), 0.1f).build())
                 .addMotion(new Vec3d(0, 0.04, 0).addRandom(Random.create(), 1))
                 .spawn(world, pos.x, pos.y, pos.z);

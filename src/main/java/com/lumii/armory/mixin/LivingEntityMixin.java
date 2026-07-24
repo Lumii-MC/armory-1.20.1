@@ -1,17 +1,27 @@
 package com.lumii.armory.mixin;
 
+import com.lumii.armory.item.DaybreakEdictItem;
+import com.lumii.armory.registry.ArmoryDamageRegistry;
 import com.lumii.armory.util.ChainEntityUtils;
-import com.lumii.armory.util.time.TickSchedulerServer;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin {
+
+    @Shadow public abstract boolean damage(DamageSource source, float amount);
+
+    @Shadow public abstract Vec3d applyMovementInput(Vec3d movementInput, float slipperiness);
 
     @Inject(method = "travel", at = @At("HEAD"), cancellable = true)
     private void chainEntity(Vec3d movementInput, CallbackInfo ci) {
@@ -26,7 +36,24 @@ public abstract class LivingEntityMixin {
     private void isDead(CallbackInfoReturnable<Boolean> cir) {
         if (ChainEntityUtils.isChained((LivingEntity)(Object)this)) {
             // ugly ahh code
+            // fym "ugly ahh code" 😭
             cir.setReturnValue(false);
         }
+    }
+
+    @ModifyVariable(
+            method = "damage",
+            at = @At("HEAD"),
+            ordinal = 0,
+            argsOnly = true
+    )
+    private DamageSource replaceDamageSource(DamageSource source) {
+        Entity attacker = source.getAttacker();
+
+        if (attacker instanceof LivingEntity living
+                && living.getMainHandStack().getItem() instanceof DaybreakEdictItem) {
+            return ArmoryDamageRegistry.daybreak((LivingEntity)(Object)this);
+        }
+        return source;
     }
 }
