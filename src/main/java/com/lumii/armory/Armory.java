@@ -1,5 +1,6 @@
 package com.lumii.armory;
 
+import com.lumii.armory.postkill.DissonanceKillHandler;
 import com.lumii.armory.registry.ArmoryItemRegistry;
 import com.lumii.armory.registry.ArmoryPackets;
 import com.lumii.armory.registry.ArmorySoundsRegistry;
@@ -25,6 +26,7 @@ public class Armory implements ModInitializer {
 		ArmorySoundsRegistry.index();
 		ArmoryPackets.initServer();
 		TickSchedulerServer.init();
+		DissonanceKillHandler.init();
 
 		LOGGER.info("Armory Initializing!");
 	}
