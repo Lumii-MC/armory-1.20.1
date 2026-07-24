@@ -8,7 +8,7 @@
 		"Lumii",
 		"Homak"
 	],
-	"license": "CC0-1.0",
+	"license": "ARR",
 	"icon": "assets/armory/icon.png",
 	"environment": "*",
 	"entrypoints": {
