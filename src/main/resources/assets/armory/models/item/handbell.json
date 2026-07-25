@@ -1,0 +1,20 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"parent": "item/handheld",
+	"textures": {
+		"layer0": "armory:item/handbell"
+	},
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [67.58, -86.63, 49.05],
+			"translation": [0, -2.25, -1.5],
+			"scale": [0.5, 0.5, 1]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [152, -86.63, 49.05],
+			"translation": [0, -2.75, -1.5],
+			"scale": [0.5, 0.5, 1]
+		}
+	}
+}

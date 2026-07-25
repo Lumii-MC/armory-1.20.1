@@ -11,6 +11,10 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
 public class ArmoryItemRegistry {
+    public static final Item HANDBELL = Registry.register(Registries.ITEM, new Identifier(
+            "armory", "handbell"), new HandbellItem(new Item.Settings().maxCount(1))
+    );
+
     public static final Item DIVINITY_DISSONANCE = Registry.register(Registries.ITEM, new Identifier(
             "armory", "divinity_dissonance"), new DivinityDissonanceItem(new Item.Settings().maxCount(1))
     );
@@ -47,6 +51,7 @@ public class ArmoryItemRegistry {
         entries.add(DIVINITY_DISSONANCE);
         entries.add(DAYBREAK_EDICT);
         entries.add(WRAITH);
+        entries.add(HANDBELL);
     }
 
     private static void modifyIngredientsTab(FabricItemGroupEntries entries){
