@@ -13,6 +13,7 @@ import team.lodestar.lodestone.systems.screenshake.ScreenshakeInstance;
 public class ArmoryPackets {
     public static final Identifier PARTICLE_SPAWN_ID = new Identifier("armory", "particle_spawn");
     public static final Identifier SHAKE_ID = new Identifier("armory", "screenshake");
+    public static final Identifier BEAM_SHAKE_ID = new Identifier("armory", "screenshake_beam");
     public static final Identifier DISSONANCE_VFX_ID = new Identifier("armory", "dis_vfx");
 
     public static void initServer(){
@@ -23,6 +24,7 @@ public class ArmoryPackets {
             ParticleSpawnPacket packet = new ParticleSpawnPacket(buf);
                     server.execute(() -> {
                         // why the fuck do you need a server init if you don't have anything here
+                        // idk man i was js following the lodestone tutorial ok :sob:
                     });
         }));
     }
@@ -36,6 +38,13 @@ public class ArmoryPackets {
         ClientPlayNetworking.registerGlobalReceiver(SHAKE_ID, (client, handler, buf, sender) -> {
             client.execute(() -> {
                 ScreenshakeInstance instance = new ScreenshakeInstance((int) (20 * 3f)).setIntensity(0.75f).setEasing(Easing.QUAD_IN_OUT);
+                ScreenshakeHandler.addScreenshake(instance);
+            });
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(BEAM_SHAKE_ID, (client, handler, buf, sender) -> {
+            client.execute(() -> {
+                ScreenshakeInstance instance = new ScreenshakeInstance((int) (20 * 5f)).setIntensity(0.75f).setEasing(Easing.QUAD_IN_OUT);
                 ScreenshakeHandler.addScreenshake(instance);
             });
         });

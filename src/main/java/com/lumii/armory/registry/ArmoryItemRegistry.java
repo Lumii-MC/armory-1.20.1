@@ -14,6 +14,10 @@ public class ArmoryItemRegistry {
     public static final Item DIVINITY_DISSONANCE = Registry.register(Registries.ITEM, new Identifier(
             "armory", "divinity_dissonance"), new DivinityDissonanceItem(new Item.Settings().maxCount(1))
     );
+
+    public static final Item DIVINITY_LAUNCHER = Registry.register(Registries.ITEM, new Identifier(
+            "armory", "divinity_launcher"), new DivinityLauncherItem(new Item.Settings().maxCount(1))
+    );
     public static final Item GUILLOTINE = Registry.register(Registries.ITEM, new Identifier(
             "armory", "guillotine"), new GuillotineItem(ToolMaterials.NETHERITE, new Item.Settings())
     );
@@ -30,7 +34,7 @@ public class ArmoryItemRegistry {
             "armory", "wraith"), new WraithItem(ToolMaterials.NETHERITE, new Item.Settings())
     );
     public static final Item DAYBREAK_EDICT = Registry.register(Registries.ITEM, new Identifier(
-            "armory", "daybreak_edict"), new DaybreakEdictItem(ToolMaterials.NETHERITE, new Item.Settings())
+            "armory", "daybreak_edict"), new GildedExecutionerItem(ToolMaterials.NETHERITE, new Item.Settings())
     );
 
     public static void init(){

@@ -6,6 +6,8 @@ import com.lumii.armory.registry.ArmoryPackets;
 import com.lumii.armory.util.time.TickSchedulerClient;
 import com.lumii.armory.util.time.TimeUtils;
 import com.lumii.armory.util.visual.QuadRenderer;
+import net.chemthunder.lux.api.LuxFlashRenderer;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.particle.ParticleTextureSheet;
@@ -48,53 +50,15 @@ public class DivinityDissonanceHandler {
             int delaySecs = 2;
             QuadRenderer.scheduleClient(pos.add(0, 0.0001, 0),
                     1, 1,
-                    new Vec3d(90, 0, 0), 8,
+                    new Vec3d(90, 0, 0), 4,
                     Armory.id("textures/vfx/execution_ring.png"),
                     TimeUtils.seconds(delaySecs),
                     false, 1,
-                    true, 15, 8,
-                    1);
+                    true, 1, 10,
+                    1, QuadRenderer.SpinAxis.Z, 5f);
         TickSchedulerClient.schedule(TimeUtils.seconds(delaySecs) - 15, () -> {
             int height = 100;
-            // first one
-            for (int i = 0; i < 5; i++) {
-                QuadRenderer.scheduleClient(pos.add(0, (double) height / 2 + i*100, 0),
-                        1, (float) height / 5,
-                        new Vec3d(0, 0, 0), 5,
-                        Armory.id("textures/vfx/beam.png"),
-                        TimeUtils.seconds(delaySecs)*2,
-                        true, TimeUtils.seconds(delaySecs)*2,
-                        false, 0, 1,
-                        0.75f);
-            }
-            QuadRenderer.scheduleClient(pos.add(0, (double) height / 2, 0),
-                    1, (float) height / 5,
-                    new Vec3d(0, 0, 0), 5,
-                    Armory.id("textures/vfx/beam.png"),
-                    TimeUtils.seconds(delaySecs)*2,
-                    true, TimeUtils.seconds(delaySecs)*2,
-                    false, 0, 1,
-                    0.75f);
 
-            // rotated 90 degrees on Y
-            for (int i = 0; i < 5; i++) {
-                QuadRenderer.scheduleClient(pos.add(0, (double) height / 2 + i*100, 0),
-                        1, (float) height / 5,
-                        new Vec3d(0, 90, 0), 5,
-                        Armory.id("textures/vfx/beam.png"),
-                        TimeUtils.seconds(delaySecs)*2,
-                        true, TimeUtils.seconds(delaySecs)*2,
-                        false, 0, 1,
-                        0.75f);
-            }
-            QuadRenderer.scheduleClient(pos.add(0, (double) height / 2, 0),
-                    1, (float) height / 5,
-                    new Vec3d(0, 90, 0), 5,
-                    Armory.id("textures/vfx/beam.png"),
-                    TimeUtils.seconds(delaySecs)*2,
-                    true, TimeUtils.seconds(delaySecs)*2,
-                    false, 0, 1,
-                    0.75f);
 
             TickSchedulerClient.scheduleRepeating(TimeUtils.seconds(delaySecs)*2, a -> {
                 if (a % 2 == 0) {
@@ -115,7 +79,7 @@ public class DivinityDissonanceHandler {
             });
         });
             TickSchedulerClient.schedule(TimeUtils.seconds(delaySecs), () -> {
-                int amount = 3;
+                int amount = 2;
                 TickSchedulerClient.scheduleRepeating(TimeUtils.seconds(delaySecs*2), i -> {
                     if (i % 2 == 0) {
                         for (int j = 0; j < amount; j++) {

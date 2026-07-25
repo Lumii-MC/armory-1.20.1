@@ -4,8 +4,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 
-public class DivinityDissonanceItem extends Item {
-    public DivinityDissonanceItem(Settings settings) {
+public class DivinityLauncherItem extends Item {
+    public DivinityLauncherItem(Settings settings) {
         super(settings);
     }
 

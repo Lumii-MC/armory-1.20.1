@@ -30,14 +30,11 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import silly.chemthunder.ozone.api.thingies.CustomBipedEntityModelPoseItem;
-import team.lodestar.lodestone.handlers.ScreenshakeHandler;
-import team.lodestar.lodestone.network.screenshake.ScreenshakePacket;
-import team.lodestar.lodestone.systems.screenshake.ScreenshakeInstance;
 
 import java.awt.*;
 
-public class DaybreakEdictItem extends SwordItem implements SimpleModelItem, CustomBipedEntityModelPoseItem {
-    public DaybreakEdictItem(ToolMaterial toolMaterial, Settings settings) {
+public class GildedExecutionerItem extends SwordItem implements SimpleModelItem, CustomBipedEntityModelPoseItem {
+    public GildedExecutionerItem(ToolMaterial toolMaterial, Settings settings) {
         super(toolMaterial, 7, -3f, settings);
     }
 
@@ -87,12 +84,12 @@ public class DaybreakEdictItem extends SwordItem implements SimpleModelItem, Cus
                 if (srPlayer != null) {
                     int delayTicks = TimeUtils.seconds(2);
                     for (ServerPlayerEntity player : srPlayer.getServerWorld().getPlayers()) {
-                        QuadRenderer.scheduleCommon(player.getServerWorld(), targetPos.subtract(0, 1.59, 0), 1, 1,
+                        QuadRenderer.scheduleCommon(player.getServerWorld(), targetPos.subtract(0, 1.59, 0), 1F, 1F,
                                 new Vec3d(90, 0, 0), 2 ,Armory.id("textures/vfx/execution_ring.png"), delayTicks, false, 1,
                                 true, 1, 10f,
                                 1, QuadRenderer.SpinAxis.Z, 5f);
                     }
-                    TickSchedulerServer.schedule(delayTicks, () -> {
+                    TickSchedulerServer.schedule((int) delayTicks, () -> {
                         // I wish i didn't look at that thing
                         // LMFAO
                         for (int i = 0; i < 25; i++) {
@@ -103,9 +100,9 @@ public class DaybreakEdictItem extends SwordItem implements SimpleModelItem, Cus
                                 1, 1,
                                 new Vec3d(0, 0, 0), 10,
                                 Armory.id("textures/vfx/shockwave.png"),
-                                20 * 10,
+                                TimeUtils.seconds(3),
                                 true, 1,
-                                true, 1, 450,
+                                true, 0, 3000,
                                 0.75f);
 
                         QuadRenderer.scheduleCommon(srPlayer.getServerWorld(),
@@ -113,9 +110,9 @@ public class DaybreakEdictItem extends SwordItem implements SimpleModelItem, Cus
                                 1, 1,
                                 new Vec3d(0, 90, 0), 10,
                                 Armory.id("textures/vfx/shockwave.png"),
-                                20 * 10,
+                                TimeUtils.seconds(3),
                                 true, 1,
-                                true, 0, 450,
+                                true, 0, 3000,
                                 0.75f);
 
                         QuadRenderer.scheduleCommon(srPlayer.getServerWorld(),
@@ -123,9 +120,9 @@ public class DaybreakEdictItem extends SwordItem implements SimpleModelItem, Cus
                                 1, 1,
                                 new Vec3d(90, 0, 0), 10,
                                 Armory.id("textures/vfx/shockwave.png"),
-                                20 * 10,
+                                TimeUtils.seconds(3),
                                 true, 1,
-                                true, 0, 450,
+                                true, 0, 3000,
                                 0.75f);
 
                         for (ServerPlayerEntity player : srPlayer.getServerWorld().getPlayers()) {

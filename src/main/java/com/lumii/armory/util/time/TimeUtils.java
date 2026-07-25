@@ -8,7 +8,7 @@ public class TimeUtils {
         return ticks * 20;
     }
 
-    public static int minutes(int ticks) {
+    public static float minutes(int ticks) {
         return ticks * 1200;
     }
 }

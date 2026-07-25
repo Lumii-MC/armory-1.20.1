@@ -4,13 +4,15 @@
   "item.armory.daybreak_edict": "Gilded Executioner",
   "item.armory.guillotine_shard": "Guillotine Shard",
   "item.armory.wraith": "Wraith",
-  "item.armory.divinity_dissonance": "Divinity Dissonance",
+  "item.armory.divinity_dissonance": "Divinity's Dissonance",
 
   "death.attack.daybreak.player": "%1$s has perished by the hands of %2$s",
-  "death.attack.daybreak": "%1$s was executed",
+  "death.attack.daybreak": "%1$s experienced the end of dawn",
+  "death.attack.beam": "%1$s experienced the dissonance of divinity",
 
-  "sounds.armory.slash": "Heavy Slash",
+  "sounds.armory.slash": "Heavy slash",
   "sounds.armory.execution": "Entity is executed",
+  "sounds.armory.bigfuckingbeam": "Divinity is called upon",
 
   "tooltip.armory.guillotine1": "On hit, leeches 2 hearts of health from a target",
   "tooltip.armory.guillotine2": "Reap mode: pulls the target towards you.",

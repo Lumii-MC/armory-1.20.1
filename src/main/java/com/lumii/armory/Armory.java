@@ -1,5 +1,6 @@
 package com.lumii.armory;
 
+import com.lumii.armory.postkill.DaybreakKillEffect;
 import com.lumii.armory.postkill.DissonanceKillHandler;
 import com.lumii.armory.registry.ArmoryItemRegistry;
 import com.lumii.armory.registry.ArmoryPackets;

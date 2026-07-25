@@ -10,5 +10,11 @@
     "sounds": [
       "armory:event/execution"
     ]
+  },
+  "event.bigfuckingbeam": {
+    "subtitle": "sounds.armory.bigfuckingbeam",
+    "sounds": [
+      "armory:event/bigfuckingbeam"
+    ]
   }
 }
