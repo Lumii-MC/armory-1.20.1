@@ -128,11 +128,11 @@ public class GildedExecutionerItem extends SwordItem implements SimpleModelItem,
                         for (ServerPlayerEntity player : srPlayer.getServerWorld().getPlayers()) {
                             LuxFlashRenderer.sendFlash(player, new Color(243, 207, 117, 255).getRGB());
                             ServerPlayNetworking.send(srPlayer, ArmoryPackets.SHAKE_ID, PacketByteBufs.empty());
-                            target.damage(ArmoryDamageRegistry.daybreak(target), Float.MAX_VALUE);
                         }
 
 
                         ChainEntityUtils.setChained(target, false);
+                        target.damage(ArmoryDamageRegistry.daybreak(target), Float.MAX_VALUE);
 
                         target.getWorld().playSound(null,
                                 target.getBlockPos(),

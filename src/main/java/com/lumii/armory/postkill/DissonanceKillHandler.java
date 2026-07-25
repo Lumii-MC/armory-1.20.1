@@ -43,8 +43,8 @@ public class DissonanceKillHandler {
                             victim.setHealth(2);
                             ChainEntityUtils.setChained(victim, true);
                             TickSchedulerServer.schedule(TimeUtils.seconds(2)+1/2, () -> {
-                                victim.damage(ArmoryDamageRegistry.beam(victim), Float.MAX_VALUE);
                                 ChainEntityUtils.setChained(victim, false);
+                                victim.damage(ArmoryDamageRegistry.beam(victim), Float.MAX_VALUE);
                                 victim.getServer().sendMessage(Text.literal(victim.getEntityName() + "got fucking chartered"));
                                 for (ServerPlayerEntity srplayer : player.getServer().getOverworld().getPlayers()) {
                                     LuxFlashRenderer.sendFlash(srplayer, new Color(243, 207, 117, 255).getRGB());

@@ -7,9 +7,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
@@ -23,6 +25,18 @@ public abstract class LivingEntityMixin {
 //            ci.cancel();
 //        }
 //    }
+
+    @Shadow
+    private float movementSpeed;
+
+    @Inject(method = "tickMovement", at = @At("HEAD"), cancellable = true)
+    private void tickMovement(CallbackInfo ci) {
+        if (ChainEntityUtils.isChained((LivingEntity)(Object)this)) {
+            // the most scuffed way this could be achieved but idc
+            this.movementSpeed = 0;
+            ci.cancel();
+        }
+    }
 
     @Inject(method = "isDead", at = @At("HEAD"), cancellable = true)
     private void isDead(CallbackInfoReturnable<Boolean> cir) {
@@ -47,5 +61,12 @@ public abstract class LivingEntityMixin {
             return ArmoryDamageRegistry.daybreak((LivingEntity)(Object)this);
         }
         return source;
+    }
+
+    @Inject(method = "damage", at = @At("HEAD"), cancellable = true)
+    public void cancelDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+        if (ChainEntityUtils.isChained((LivingEntity)(Object)this)) {
+            cir.setReturnValue(false);
+        }
     }
 }

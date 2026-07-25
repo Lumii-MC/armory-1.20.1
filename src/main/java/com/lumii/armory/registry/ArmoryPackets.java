@@ -1,8 +1,8 @@
 package com.lumii.armory.registry;
 
-import com.lumii.armory.Armory;
 import com.lumii.armory.packets.DissonanceEffectPacket;
 import com.lumii.armory.packets.ParticleSpawnPacket;
+import com.lumii.armory.util.ChainClientTracker;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.util.Identifier;
@@ -15,6 +15,7 @@ public class ArmoryPackets {
     public static final Identifier SHAKE_ID = new Identifier("armory", "screenshake");
     public static final Identifier BEAM_SHAKE_ID = new Identifier("armory", "screenshake_beam");
     public static final Identifier DISSONANCE_VFX_ID = new Identifier("armory", "dis_vfx");
+    public static final Identifier CHAIN_STATUS_ID = new Identifier("armory", "chain_status");
 
     public static void initServer(){
         ServerPlayNetworking.registerGlobalReceiver(PARTICLE_SPAWN_ID, ((server,
@@ -52,6 +53,13 @@ public class ArmoryPackets {
         ClientPlayNetworking.registerGlobalReceiver(DISSONANCE_VFX_ID, (client, handler, buf, sender) ->{
             DissonanceEffectPacket packet = new DissonanceEffectPacket(buf);
             packet.handle(client);
+        } );
+
+        ClientPlayNetworking.registerGlobalReceiver(CHAIN_STATUS_ID, (client, handler, buf, sender) ->{
+            boolean chained = buf.readBoolean();
+            client.execute(() -> {
+                ChainClientTracker.setChained(chained);
+            });
         } );
     }
 }
