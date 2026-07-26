@@ -13,5 +13,6 @@
     "requireAnnotations": true
   },
   "client": [
+    "ClientPlayerEntityMixin"
   ]
 }

@@ -57,9 +57,6 @@ public class DivinityDissonanceHandler {
                     true, 1, 10,
                     1, QuadRenderer.SpinAxis.Z, 5f);
         TickSchedulerClient.schedule(TimeUtils.seconds(delaySecs) - 15, () -> {
-            int height = 100;
-
-
             TickSchedulerClient.scheduleRepeating(TimeUtils.seconds(delaySecs)*2, a -> {
                 if (a % 2 == 0) {
                     int length = 1000;
