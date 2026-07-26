@@ -1,7 +1,9 @@
 package com.lumii.armory.registry;
 
+import com.lumii.armory.packets.DissonanceEffectHandlerHandler;
 import com.lumii.armory.packets.DissonanceEffectPacket;
 import com.lumii.armory.packets.ParticleSpawnPacket;
+import com.lumii.armory.packets.ParticleSpawnPacketHandler;
 import com.lumii.armory.util.ChainClientTracker;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -31,10 +33,10 @@ public class ArmoryPackets {
     }
 
     public static void initClient(){
-        ClientPlayNetworking.registerGlobalReceiver(PARTICLE_SPAWN_ID, (client, handler, buf, sender) ->{
+        ClientPlayNetworking.registerGlobalReceiver(PARTICLE_SPAWN_ID, (client, handler, buf, sender) -> {
             ParticleSpawnPacket packet = new ParticleSpawnPacket(buf);
-            packet.handle(client);
-        } );
+            ParticleSpawnPacketHandler.handle(client, packet);
+        });
 
         ClientPlayNetworking.registerGlobalReceiver(SHAKE_ID, (client, handler, buf, sender) -> {
             client.execute(() -> {
@@ -52,7 +54,7 @@ public class ArmoryPackets {
 
         ClientPlayNetworking.registerGlobalReceiver(DISSONANCE_VFX_ID, (client, handler, buf, sender) ->{
             DissonanceEffectPacket packet = new DissonanceEffectPacket(buf);
-            packet.handle(client);
+            DissonanceEffectHandlerHandler.handle(client, packet);
         } );
 
         ClientPlayNetworking.registerGlobalReceiver(CHAIN_STATUS_ID, (client, handler, buf, sender) ->{

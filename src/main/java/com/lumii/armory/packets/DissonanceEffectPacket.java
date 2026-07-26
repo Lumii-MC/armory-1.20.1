@@ -14,7 +14,7 @@ import java.awt.*;
 import java.util.UUID;
 
 public class DissonanceEffectPacket {
-    private final LivingEntity attacked;
+    public final LivingEntity attacked;
 
     public DissonanceEffectPacket(LivingEntity attacked) {
         this.attacked = attacked;
@@ -26,15 +26,6 @@ public class DissonanceEffectPacket {
 
     public static PacketByteBuf toBytes(LivingEntity attacked) {
         return PacketByteBufs.create().writeUuid(attacked.getUuid());
-    }
-
-    public void handle(MinecraftClient client) {
-        client.execute(() -> {
-            World world = client.world;
-            if (world != null) {
-                DivinityDissonanceHandler.effectClient(attacked);
-            }
-        });
     }
 
     public @Nullable LivingEntity getLivingEntityByUuid(ClientWorld world, UUID uuid) {
