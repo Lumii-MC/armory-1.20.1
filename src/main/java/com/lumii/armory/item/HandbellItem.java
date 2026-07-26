@@ -1,20 +1,16 @@
 package com.lumii.armory.item;
 
-import com.lumii.armory.registry.ArmoryPackets;
+import com.lumii.armory.registry.ArmorySoundsRegistry;
 import com.lumii.armory.util.ChainEntityUtils;
 import com.lumii.armory.util.time.TickSchedulerServer;
 import com.lumii.armory.util.time.TimeUtils;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.Box;
@@ -41,12 +37,20 @@ public class HandbellItem extends Item {
                     });
                 }
             }
+            world.playSound(
+                    null,
+                    user.getBlockPos(),
+                    ArmorySoundsRegistry.HANDBELL,
+                    SoundCategory.MASTER,
+                    1,
+                    1
+            );
         }
         return TypedActionResult.success(user.getStackInHand(hand));
     }
 
     @Override
     public Text getName(ItemStack stack){
-        return super.getName(stack).copy().styled(style -> style.withColor(Formatting.GOLD));
+        return super.getName(stack).copy().styled(style -> style.withColor(0xf8d16d));
     }
 }

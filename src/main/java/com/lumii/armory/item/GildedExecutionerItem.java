@@ -1,6 +1,7 @@
 package com.lumii.armory.item;
 
 import com.lumii.armory.Armory;
+import com.lumii.armory.packets.DissonanceEffectPacket;
 import com.lumii.armory.packets.ParticleSpawnPacket;
 import com.lumii.armory.registry.ArmoryDamageRegistry;
 import com.lumii.armory.registry.ArmoryPackets;
@@ -9,13 +10,16 @@ import com.lumii.armory.util.ChainEntityUtils;
 import com.lumii.armory.util.time.TickSchedulerServer;
 import com.lumii.armory.util.time.TimeUtils;
 import com.lumii.armory.util.visual.QuadRenderer;
+import com.lumii.armory.vfx.DivinityDissonanceHandler;
 import io.netty.buffer.Unpooled;
 import net.chemthunder.lux.api.LuxFlashRenderer;
+import net.chemthunder.lux.impl.util.Easing;
 import net.chemthunder.reflect.api.ReflectPlugin;
 import net.chemthunder.reflect.api.interfaces.SimpleModelItem;
 import net.chemthunder.reflect.api.presets.ReflectModelPresets;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -29,9 +33,12 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import silly.chemthunder.ozone.api.thingies.CustomBipedEntityModelPoseItem;
 
 import java.awt.*;
+import java.util.List;
 
 public class GildedExecutionerItem extends SwordItem implements SimpleModelItem, CustomBipedEntityModelPoseItem {
     public GildedExecutionerItem(ToolMaterial toolMaterial, Settings settings) {
@@ -66,7 +73,14 @@ public class GildedExecutionerItem extends SwordItem implements SimpleModelItem,
     public boolean postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {;
         target.damage(ArmoryDamageRegistry.daybreak(target), 2);
 
-        target.playSound(ArmorySoundsRegistry.SLASH, 1, 1);
+        target.getWorld().playSound(
+                null,
+                target.getBlockPos(),
+                ArmorySoundsRegistry.SLASH,
+                SoundCategory.NEUTRAL,
+                1,
+                1
+        );
 
         if (!ChainEntityUtils.isChained(target)  && target.getHealth() <= 4.0F) {
 
@@ -146,10 +160,30 @@ public class GildedExecutionerItem extends SwordItem implements SimpleModelItem,
                 if (ChainEntityUtils.isChained(target) && target.isDead()){
                     ChainEntityUtils.setChained(target, false);
                 }
-                return true;
+                ItemStack offhand = attacker.getOffHandStack();
+                if (offhand.getItem() instanceof DivinityDissonanceItem){
+                    for (ServerPlayerEntity player : srPlayer.getServerWorld().getPlayers()) {
+                        LuxFlashRenderer.sendFlash(player, 0xffffff, Easing.linear,80);
+                        ServerPlayNetworking.send(srPlayer, ArmoryPackets.SHAKE_ID, PacketByteBufs.empty());
+                    }
+                    target.getWorld().playSound(
+                            null,
+                            target.getBlockPos(),
+                            ArmorySoundsRegistry.FUCKYOUREARS,
+                            SoundCategory.MASTER,
+                            50,
+                            1
+                    );
+                    DivinityDissonanceHandler.addEffect(target);
+                }
             }
         }
         return super.postHit(stack, target, attacker);
+    }
+
+    @Override
+    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+        tooltip.add(Text.translatable("tooltip.armory.executioner").formatted(Formatting.DARK_GRAY));
     }
 
     @Override

@@ -16,5 +16,17 @@
     "sounds": [
       "armory:event/bigfuckingbeam"
     ]
+  },
+  "item.handbell": {
+    "subtitle": "sounds.armory.handbell",
+    "sounds": [
+      "armory:item/handbell"
+    ]
+  },
+  "joke.fuckyourears": {
+    "subtitle": "sounds.armory.lobotomy",
+    "sounds": [
+      "armory:joke/fuckyourears"
+    ]
   }
 }

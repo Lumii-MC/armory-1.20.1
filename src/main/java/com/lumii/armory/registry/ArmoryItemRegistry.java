@@ -1,13 +1,11 @@
 package com.lumii.armory.registry;
 
 import com.lumii.armory.item.*;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.ToolMaterials;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.minecraft.item.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class ArmoryItemRegistry {
@@ -42,19 +40,22 @@ public class ArmoryItemRegistry {
     );
 
     public static void init(){
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(ArmoryItemRegistry::modifyCombatTab);
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(ArmoryItemRegistry::modifyIngredientsTab);
     }
 
-    private static void modifyCombatTab(FabricItemGroupEntries entries){
-        entries.add(GUILLOTINE);
-        entries.add(DIVINITY_DISSONANCE);
-        entries.add(DAYBREAK_EDICT);
-        entries.add(WRAITH);
-        entries.add(HANDBELL);
-    }
-
-    private static void modifyIngredientsTab(FabricItemGroupEntries entries){
-        entries.add(GUILLOTINE_SHARD);
-    }
+    public static final ItemGroup GROUP = Registry.register(
+            Registries.ITEM_GROUP,
+            new Identifier("armory", "group"),
+            FabricItemGroup.builder()
+                    .displayName(Text.translatable("itemGroup.armory.group"))
+                    .icon(() -> new ItemStack(DAYBREAK_EDICT))
+                    .entries((displayContext, entries) -> {
+                        entries.add(GUILLOTINE);
+                        entries.add(DAYBREAK_EDICT);
+                        entries.add(WRAITH);
+                        entries.add(DIVINITY_DISSONANCE);
+                        entries.add(HANDBELL);
+                        entries.add(GUILLOTINE_SHARD);
+                    })
+                    .build()
+    );
 }

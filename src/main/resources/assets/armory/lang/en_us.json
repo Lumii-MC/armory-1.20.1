@@ -10,12 +10,18 @@
   "death.attack.daybreak.player": "%1$s has perished by the hands of %2$s",
   "death.attack.daybreak": "%1$s experienced the end of dawn",
   "death.attack.beam": "%1$s experienced the dissonance of divinity",
+  "death.attack.beam.player": "%1$s was raptured by higher forces",
 
   "sounds.armory.slash": "Heavy slash",
   "sounds.armory.execution": "Entity is executed",
   "sounds.armory.bigfuckingbeam": "Divinity is called upon",
+  "sounds.armory.handbell": "Handbell resonates",
+  "sounds.armory.lobotomy": "Fuck your ears, you deserved this",
 
   "tooltip.armory.guillotine1": "On hit, leeches 2 hearts of health from a target",
   "tooltip.armory.guillotine2": "Reap mode: pulls the target towards you.",
-  "tooltip.armory.guillotine3": "Hook mode: pulls you to the target."
+  "tooltip.armory.guillotine3": "Hook mode: pulls you to the target.",
+  "tooltip.armory.executioner": "Dawn of the end.",
+
+  "itemGroup.armory.group": "Armory"
 }

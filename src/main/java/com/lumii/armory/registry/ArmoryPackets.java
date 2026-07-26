@@ -45,7 +45,7 @@ public class ArmoryPackets {
 
         ClientPlayNetworking.registerGlobalReceiver(BEAM_SHAKE_ID, (client, handler, buf, sender) -> {
             client.execute(() -> {
-                ScreenshakeInstance instance = new ScreenshakeInstance((int) (20 * 5f)).setIntensity(0.75f).setEasing(Easing.QUAD_IN_OUT);
+                ScreenshakeInstance instance = new ScreenshakeInstance((int) (20 * 4.5f)).setIntensity(0.75f).setEasing(Easing.QUAD_IN_OUT);
                 ScreenshakeHandler.addScreenshake(instance);
             });
         });

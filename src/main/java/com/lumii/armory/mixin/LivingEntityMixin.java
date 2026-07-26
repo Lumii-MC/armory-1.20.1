@@ -69,4 +69,14 @@ public abstract class LivingEntityMixin {
             cir.setReturnValue(false);
         }
     }
+
+    @Inject(method = "tryUseTotem", at = @At("HEAD"), cancellable = true)
+    private void fucktotems(DamageSource source, CallbackInfoReturnable<Boolean> cir){
+        if (source.isOf(ArmoryDamageRegistry.BEAM)){
+            cir.setReturnValue(false);
+        }
+        if (source.isOf(ArmoryDamageRegistry.DAYBREAK)){
+            cir.setReturnValue(false);
+        }
+    }
 }

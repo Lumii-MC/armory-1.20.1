@@ -48,7 +48,7 @@ public class DissonanceKillHandler {
                                 victim.getServer().sendMessage(Text.literal(victim.getEntityName() + "got fucking chartered"));
                                 for (ServerPlayerEntity srplayer : player.getServer().getOverworld().getPlayers()) {
                                     LuxFlashRenderer.sendFlash(srplayer, new Color(243, 207, 117, 255).getRGB());
-                                    ServerPlayNetworking.send(srplayer, ArmoryPackets.SHAKE_ID, PacketByteBufs.empty());
+                                    ServerPlayNetworking.send(srplayer, ArmoryPackets.BEAM_SHAKE_ID, PacketByteBufs.empty());
                                 }
                             });
                         }
