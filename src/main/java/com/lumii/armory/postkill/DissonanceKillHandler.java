@@ -52,6 +52,13 @@ public class DissonanceKillHandler {
                                 living.getServer().sendMessage(Text.literal(living.getEntityName() + "got fucking chartered"));
                             });
                             DivinityDissonanceHandler.addEffect(living);
+                            living.getWorld().playSound(
+                                    null,
+                                    living.getBlockPos(),
+                                    ArmorySoundsRegistry.BIGFUCKINGBEAM,
+                                    SoundCategory.MASTER,
+                                    2,
+                                    1);
                             return false;
                         }
                     }
