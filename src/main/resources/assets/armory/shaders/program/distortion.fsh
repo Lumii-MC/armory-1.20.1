@@ -55,6 +55,7 @@ float noise(in vec2 st, in float seed) {
     return gradientNoise(vec3(st, seed)) * 0.5 + 0.5;
 }
 
+// the book of shaders saves me once again
 #define OCTAVES 3
 float fbm(in vec2 st, in float seed) {
     float value = 0.0;
@@ -93,9 +94,15 @@ void main() {
 
     vec2 distortionOffset = dir * noiseMag * (vignetteMask * 0.5);
 
-    vec3 tint = vec3(0.25, 0.0, 0.0) * vignetteMask;
+    vec3 tint = (vec3(243. / 255., 207. / 255., 117. / 255.) / 3.5) * vignetteMask;
 
-    vec4 mainImageColor = texture(DiffuseSampler, texCoord + distortionOffset);
+    float offset = 0.015 * (vignetteMask*vignetteMask);
+
+    float mainImageRed = texture(DiffuseSampler, texCoord + distortionOffset*1.+ (offset * 0.)).r;
+    float mainImageGreen = texture(DiffuseSampler, texCoord + distortionOffset*1. + (offset * 1.)).g;
+    float mainImageBlue = texture(DiffuseSampler, texCoord + distortionOffset*1. + (offset * 2.)).b;
+
+    vec4 mainImageColor = vec4(mainImageRed, mainImageGreen, mainImageBlue, 1.0);
 
     fragColor = vec4(mainImageColor.rgb + tint, 1.0);
 }
