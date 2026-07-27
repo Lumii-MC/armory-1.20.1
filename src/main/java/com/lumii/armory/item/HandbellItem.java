@@ -24,7 +24,7 @@ public class HandbellItem extends Item {
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         if (!world.isClient) {
-            if (!user.isCreative()) user.getItemCooldownManager().set(this, TimeUtils.seconds(25));
+            if (!user.isCreative()) user.getItemCooldownManager().set(this, TimeUtils.seconds(45));
 
             Box box = user.getBoundingBox().expand(10);
 
