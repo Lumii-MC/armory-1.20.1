@@ -6,6 +6,7 @@ import com.lumii.armory.util.time.TickSchedulerClient;
 import com.lumii.armory.util.visual.CubeRenderer;
 import com.lumii.armory.util.visual.QuadRenderer;
 import com.lumii.armory.vfx.DistortionPost;
+import com.lumii.armory.vfx.beam.BeamPostHandler;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -20,6 +21,7 @@ public class ArmoryClient implements ClientModInitializer {
         CubeRenderer.init();
 
         PostProcessHandler.addInstance(DistortionPost.INSTANCE);
+        PostProcessHandler.addInstance(BeamPostHandler.INSTANCE);
         DistortionPost.INSTANCE.setActive(false);
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {

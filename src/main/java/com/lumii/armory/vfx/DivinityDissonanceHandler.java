@@ -6,6 +6,8 @@ import com.lumii.armory.registry.ArmoryPackets;
 import com.lumii.armory.util.time.TickSchedulerClient;
 import com.lumii.armory.util.time.TimeUtils;
 import com.lumii.armory.util.visual.QuadRenderer;
+import com.lumii.armory.vfx.beam.BeamPost;
+import com.lumii.armory.vfx.beam.BeamPostHandler;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -29,35 +31,39 @@ public class DivinityDissonanceHandler {
     }
 
     public static void effectClient(LivingEntity entity) {
-            Vec3d pos = entity.getPos();
-            World world = entity.getEntityWorld();
-            Random random = entity.getRandom();
-            WorldParticleBuilder builder = WorldParticleBuilder.create(LodestoneParticleRegistry.WISP_PARTICLE)
-                    .setFullBrightLighting()
-                    .setFrictionStrength(0)
-                    .setNoClip(true)
-                    .setColorData(ColorParticleData.create(new Color(139, 121, 79, 255), new Color(142, 136, 115, 255)).build())
-                    .setFrictionStrength(0)
-                    .setLifetime(7 + random.nextBetween(0, 7));
+        Vec3d pos = entity.getPos();
+        World world = entity.getEntityWorld();
+        Random random = entity.getRandom();
+        WorldParticleBuilder builder = WorldParticleBuilder.create(LodestoneParticleRegistry.WISP_PARTICLE)
+                .setFullBrightLighting()
+                .setFrictionStrength(0)
+                .setNoClip(true)
+                .setColorData(ColorParticleData.create(new Color(139, 121, 79, 255), new Color(142, 136, 115, 255)).build())
+                .setFrictionStrength(0)
+                .setLifetime(7 + random.nextBetween(0, 7));
 
-            int delaySecs = 2;
-            QuadRenderer.scheduleClient(pos.add(0, 0.0001, 0),
-                    1, 1,
-                    new Vec3d(90, 0, 0), 4,
-                    Armory.id("textures/vfx/execution_ring.png"),
-                    TimeUtils.seconds(delaySecs),
-                    false, 1,
-                    true, 1, 10,
-                    1, QuadRenderer.SpinAxis.Z, 5f);
+        int delaySecs = 2;
+        QuadRenderer.scheduleClient(pos.add(0, 0.0001, 0),
+                1, 1,
+                new Vec3d(90, 0, 0), 4,
+                Armory.id("textures/vfx/execution_ring.png"),
+                TimeUtils.seconds(delaySecs),
+                false, 1,
+                true, 1, 10,
+                1, QuadRenderer.SpinAxis.Z, 5f);
+
         TickSchedulerClient.schedule(TimeUtils.seconds(delaySecs) - 15, () -> {
-            TickSchedulerClient.scheduleRepeating(TimeUtils.seconds(delaySecs)*2, a -> {
+            var instance = new BeamPost(pos);
+            BeamPostHandler.INSTANCE.addFxInstance(instance);
+
+            TickSchedulerClient.scheduleRepeating(TimeUtils.seconds(delaySecs) * 2, a -> {
                 if (a % 2 == 0) {
-                    int length = 1000;
+                    int length = 350;
 
                     for (int i = 0; i < length; i++) {
-                        double currentSpread = (double) (length - i) / 1000;
+                        double currentSpread = (double) (length - i) / 200;
 
-                        for (int j = 0; j < (length - i) / 500 ; j++) {
+                        for (int j = 0; j < (length - i) / 200 ; j++) {
                             double offsetX = (random.nextDouble() * 2.0 - 1.0) * currentSpread;
                             double offsetZ = (random.nextDouble() * 2.0 - 1.0) * currentSpread;
 
@@ -66,17 +72,23 @@ public class DivinityDissonanceHandler {
                         }
                     }
                 }
+
+                if (a >= (TimeUtils.seconds(delaySecs) * 2) - 5) {
+                    TickSchedulerClient.schedule(10, instance::remove);
+                }
             });
         });
-            TickSchedulerClient.schedule(TimeUtils.seconds(delaySecs), () -> {
-                int amount = 2;
-                TickSchedulerClient.scheduleRepeating(TimeUtils.seconds(delaySecs*2), i -> {
-                    if (i % 2 == 0) {
-                        for (int j = 0; j < amount; j++) {
-                            builder.setScaleData(GenericParticleData.create(2.5f + (random.nextBetween(10, 50) / 10f)).build()).spawn(world, pos.x + random.nextBetween(-3, 3), pos.y + random.nextBetween(-1, 2), pos.z + random.nextBetween(-3, 3));
-                        }
+
+        TickSchedulerClient.schedule(TimeUtils.seconds(delaySecs), () -> {
+            int amount = 5;
+            TickSchedulerClient.scheduleRepeating(TimeUtils.seconds((delaySecs * 4) - 5), i -> {
+                if (i % 2 == 0) {
+                    for (int j = 0; j < amount; j++) {
+                        builder.setScaleData(GenericParticleData.create(2.5f + (random.nextBetween(10, 50) / 10f)).build())
+                                .spawn(world, pos.x + random.nextBetween(-5, 5), pos.y + random.nextBetween(-2, 3), pos.z + random.nextBetween(-5, 5));
                     }
-                });
+                }
             });
+        });
     }
 }
