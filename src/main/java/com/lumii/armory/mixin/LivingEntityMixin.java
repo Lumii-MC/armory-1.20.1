@@ -3,9 +3,11 @@ package com.lumii.armory.mixin;
 import com.lumii.armory.item.GildedExecutionerItem;
 import com.lumii.armory.registry.ArmoryDamageRegistry;
 import com.lumii.armory.util.ChainEntityUtils;
+import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -36,6 +38,11 @@ public abstract class LivingEntityMixin {
             this.movementSpeed = 0;
             ci.cancel();
         }
+    }
+
+    @Inject(method = "lookAt", at = @At("HEAD"), cancellable = true)
+    private void cancelMove(EntityAnchorArgumentType.EntityAnchor anchorPoint, Vec3d target, CallbackInfo ci) {
+        if (ChainEntityUtils.isChained((LivingEntity)(Object)this)) ci.cancel();
     }
 
     @Inject(method = "isDead", at = @At("HEAD"), cancellable = true)

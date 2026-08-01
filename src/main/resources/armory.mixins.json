@@ -13,6 +13,9 @@
     "requireAnnotations": true
   },
   "client": [
-    "ClientPlayerEntityMixin"
+    "ClientPlayerEntityMixin",
+    "KeyboardMixin",
+    "MinecraftClientMixin",
+    "MouseMixin"
   ]
 }
