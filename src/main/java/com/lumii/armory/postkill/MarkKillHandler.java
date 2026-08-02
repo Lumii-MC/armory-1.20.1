@@ -21,18 +21,26 @@ public class MarkKillHandler {
                         if (!component.getValue()) {
                             component.setValue(true);
                             ModComponents.MARKED.sync(player);
+                            entity.setHealth(1);
+                            return false;
                         }
-                        entity.setHealth(4);
+                        else {
+                            Armory.LOGGER.info("{} Got chartered by a mark!", player.getName().toString());
+                            component.setValue(false);
+                            ModComponents.MARKED.sync(player);
+                            player.setHealth(player.getMaxHealth());
+                            ((ServerPlayerEntity) player).changeGameMode(GameMode.SPECTATOR);
+                            return false;
+                        }
                     }
                     else return true;
-                    return false;
                 }
                 return true;
             }
             if (entity instanceof PlayerEntity player) {
                 var component = ModComponents.MARKED.get(player);
                 if (component.getValue()) {
-                    Armory.LOGGER.info("{} Got chartered by a mark!", player.getName());
+                    Armory.LOGGER.info("{} Got chartered by a mark!", player.getName().toString());
                     component.setValue(false);
                     ModComponents.MARKED.sync(player);
                     player.setHealth(player.getMaxHealth());
