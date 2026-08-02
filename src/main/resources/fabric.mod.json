@@ -20,11 +20,19 @@
 		],
 		"fabric-datagen": [
 			"com.lumii.armory.ArmoryDataGenerator"
+		],
+		"cardinal-components": [
+			"com.lumii.armory.cca.ModComponents"
 		]
 	},
 	"mixins": [
 		"armory.mixins.json"
 	],
+	"custom": {
+		"cardinal-components": [
+			"armory:marked"
+		]
+	},
 	"depends": {
 		"fabricloader": ">=0.15.11",
 		"minecraft": "~1.20.1",

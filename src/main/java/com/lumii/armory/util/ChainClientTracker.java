@@ -1,6 +1,6 @@
 package com.lumii.armory.util;
 
-import com.lumii.armory.vfx.DistortionPost;
+import com.lumii.armory.vfx.distort.DistortionPost;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 

@@ -1,7 +1,9 @@
 package com.lumii.armory;
 
+import com.lumii.armory.cca.ModComponents;
 import com.lumii.armory.postkill.DaybreakKillEffect;
 import com.lumii.armory.postkill.DissonanceKillHandler;
+import com.lumii.armory.postkill.MarkKillHandler;
 import com.lumii.armory.registry.ArmoryItemRegistry;
 import com.lumii.armory.registry.ArmoryPackets;
 import com.lumii.armory.registry.ArmorySoundsRegistry;
@@ -24,10 +26,12 @@ public class Armory implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		ArmoryItemRegistry.init();
+		ModComponents.init();
 		ArmorySoundsRegistry.index();
 		ArmoryPackets.initServer();
 		TickSchedulerServer.init();
 		DissonanceKillHandler.init();
+		MarkKillHandler.init();
 
 		LOGGER.info("Armory Initializing!");
 	}

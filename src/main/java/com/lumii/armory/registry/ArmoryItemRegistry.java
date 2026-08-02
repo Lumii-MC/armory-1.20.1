@@ -9,6 +9,10 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class ArmoryItemRegistry {
+    public static final Item DEATH_MARK = Registry.register(Registries.ITEM, new Identifier(
+            "armory", "death_mark"), new DeathMarkItem(new Item.Settings().maxCount(1))
+    );
+
     public static final Item HANDBELL = Registry.register(Registries.ITEM, new Identifier(
             "armory", "handbell"), new HandbellItem(new Item.Settings().maxCount(1))
     );
@@ -39,8 +43,7 @@ public class ArmoryItemRegistry {
             "armory", "daybreak_edict"), new GildedExecutionerItem(ToolMaterials.NETHERITE, new Item.Settings())
     );
 
-    public static void init(){
-    }
+    public static void init(){}
 
     public static final ItemGroup GROUP = Registry.register(
             Registries.ITEM_GROUP,

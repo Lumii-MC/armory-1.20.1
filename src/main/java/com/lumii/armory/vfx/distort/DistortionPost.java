@@ -1,4 +1,4 @@
-package com.lumii.armory.vfx;
+package com.lumii.armory.vfx.distort;
 
 import com.lumii.armory.Armory;
 import net.minecraft.client.util.math.MatrixStack;
