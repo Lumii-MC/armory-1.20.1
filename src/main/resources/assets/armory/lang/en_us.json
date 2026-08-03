@@ -6,12 +6,15 @@
   "item.armory.wraith": "Wraith",
   "item.armory.divinity_dissonance": "Divinity's Dissonance",
   "item.armory.handbell": "Handbell",
-  "item.armory.death_mark": "Death Mark",
+  "item.armory.death_mark": "Cursed Scroll",
 
   "death.attack.daybreak.player": "%1$s has perished by the hands of %2$s",
   "death.attack.daybreak": "%1$s experienced the end of dawn",
   "death.attack.beam": "%1$s experienced the dissonance of divinity",
   "death.attack.beam.player": "%1$s was raptured by higher forces",
+  "death.attack.marked": "%1$s was marked for death",
+  "death.attack.marked.player": "%1$s was taken by the mark of death",
+  "death.armory.marked": "%1$s was marked for death",
 
   "sounds.armory.slash": "Heavy slash",
   "sounds.armory.execution": "Entity is executed",

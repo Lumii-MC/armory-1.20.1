@@ -57,6 +57,7 @@ public class ArmoryItemRegistry {
                         entries.add(WRAITH);
                         entries.add(DIVINITY_DISSONANCE);
                         entries.add(HANDBELL);
+                        entries.add(DEATH_MARK);
                         entries.add(GUILLOTINE_SHARD);
                     })
                     .build()

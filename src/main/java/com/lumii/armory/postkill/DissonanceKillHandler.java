@@ -72,8 +72,6 @@ public class DissonanceKillHandler {
                             1
                     );
                     Armory.LOGGER.info("victim {} by {}", living.getEntityName(), attacker.getEntityName());
-                    // TODO: Lumii add the kill logic please
-                    // oh fuck you
                 }
             }
 
