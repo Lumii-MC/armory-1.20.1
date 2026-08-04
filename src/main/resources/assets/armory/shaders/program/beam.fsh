@@ -1,7 +1,5 @@
 #version 150
 
-#moj_import <lodestone:common_math.glsl>
-
 uniform sampler2D DiffuseSampler;
 uniform sampler2D MainDepthSampler;
 
@@ -23,6 +21,39 @@ out vec4 fragColor;
 // Shader by Homak on Modrinth! https://modrinth.com/user/Homak
 // Licenced MIT https://opensource.org/license/mit
 // Based on shock.fsh
+
+float fetch(samplerBuffer DataBuffer, int index) {
+    return texelFetch(DataBuffer, index).r;
+}
+
+vec3 fetch3(samplerBuffer DataBuffer, int startIndex) {
+    return vec3(fetch(DataBuffer, startIndex), fetch(DataBuffer, startIndex + 1), fetch(DataBuffer, startIndex + 2));
+}
+
+float getDepth(sampler2D DepthBuffer, vec2 uv) {
+    return texture(DepthBuffer, uv).r;
+}
+
+vec3 getWorldPos(sampler2D DepthBuffer, vec2 texCoord, mat4 invProjMat, mat4 invViewMat, vec3 cameraPos) {
+    float z = getDepth(DepthBuffer, texCoord) * 2.0 - 1.0;
+    vec4 clipSpacePosition = vec4(texCoord * 2.0 - 1.0, z, 1.0);
+    vec4 viewSpacePosition = invProjMat * clipSpacePosition;
+    viewSpacePosition /= viewSpacePosition.w;
+    vec4 localSpacePosition = invViewMat * viewSpacePosition;
+    return cameraPos + localSpacePosition.xyz;
+}
+
+vec3 viewSpaceFromDepth(float depth, vec2 texCoord, mat4 invProjMat) {
+    float z = depth * 2.0 - 1.0;
+    vec4 clipSpacePosition = vec4(texCoord * 2.0 - 1.0, z, 1.0);
+    vec4 viewSpacePosition = invProjMat * clipSpacePosition;
+    return viewSpacePosition.xyz / viewSpacePosition.w;
+}
+
+float applyDepthFade(float sceneDepthView, float pixelDepthView, float intensity) {
+    float spacing = pixelDepthView - sceneDepthView;
+    return clamp(spacing / intensity, 0.0, 1.0);
+}
 
 float sdCylinder( vec3 p, float r, float h )
 {

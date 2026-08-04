@@ -15,7 +15,7 @@ public class ShockwavePostHandler extends MultiInstancePostProcessor<ShockwavePo
 
     @Override
     protected int getMaxInstances() {
-        return 16;
+        return 64;
     }
 
     @Override
