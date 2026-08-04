@@ -6,6 +6,9 @@ uniform float time;
 in vec2 texCoord;
 out vec4 fragColor;
 
+// Shader by Homak on Modrinth! https://modrinth.com/user/Homak
+// Licenced MIT https://opensource.org/license/mit
+
 vec3 hash33(vec3 p3) {
     p3 = fract(p3 * vec3(0.1031, 0.1030, 0.0973));
     p3 += dot(p3, p3.yxz + 33.33);

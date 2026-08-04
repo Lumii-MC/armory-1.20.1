@@ -1,6 +1,9 @@
 package com.lumii.armory.postkill;
 
-public class MarkDeathEffect {
+import net.minecraft.util.math.Vec3d;
 
-    //TODO: VFX for dying with a mark
+public class MarkDeathEffect {
+    public static void effectClient(Vec3d pos) {
+
+    }
 }

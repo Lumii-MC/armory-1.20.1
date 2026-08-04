@@ -20,29 +20,9 @@ uniform vec2 OutSize;
 in vec2 texCoord;
 out vec4 fragColor;
 
-#define STEPS 30
-#define SURFACE_FADE 6.75
-#define FOG_DENSITY 1.95
-#define VOLUME_STEP_SIZE 0.25
-#define MAX_LIFETIME 5.5
-
-// Once again, Inigo Quilez is the goat
-// https://iquilezles.org/articles/smin/
-float smin( float a, float b, float k )
-{
-    k *= 1.0;
-    float r = exp2(-a/k) + exp2(-b/k);
-    return -k*log2(r);
-}
-
-// https://iquilezles.org/articles/sdfxor/
-float opXor(float a, float b) {
-    return max(min(a, b), -max(a, b));
-}
-
-float opSub(float a, float b) {
-    return max(-b, a);
-}
+// Shader by Homak on Modrinth! https://modrinth.com/user/Homak
+// Licenced MIT https://opensource.org/license/mit
+// Based on shock.fsh
 
 float sdCylinder( vec3 p, float r, float h )
 {
@@ -123,22 +103,26 @@ float envelope(float time, float amplitude, float riseEnd, float holdEnd, float 
     return 0.0;
 }
 
-float map(vec3 p) {
+float map(vec3 p, out float outTime) {
     float d = 1e10;
+    outTime = 0.0;
 
     for (int instance = 0; instance < InstanceCount; instance++) {
-        int index = instance * 5;
+        int index = instance * 4;
         vec3 center = fetch3(DataBuffer, index);
         float instanceTime = fetch(DataBuffer, index + 3);
 
-        float instanceFade = 1.0 - clamp(instanceTime / MAX_LIFETIME, 0.0, 1.0);
+        float instanceFade = 1.0 - clamp(instanceTime / 5.5, 0.0, 1.0);
 
         vec3 localP = p - center;
 
-        float height = 1200;
-        //float shape = sdCylinder(localP - vec3(0, height - 1, 0), 1+clamp((((6 * instanceFade) + sin(time*22)*clamp(1 - instanceFade, 0, 0.25))/10)*clamp(instanceTime/(MAX_LIFETIME/6), 0, 10), 0.0, 10)*3.5, height);
-        float shape = sdCylinder(localP - vec3(0, height - 1, 0), envelope(instanceTime, 1, (MAX_LIFETIME/4), (MAX_LIFETIME/2), MAX_LIFETIME)*3+((sin(time*25)*0.35)*(1-instanceFade)), height);
-        d = min(d, shape);
+        float height = 1200.0;
+        float shape = sdCylinder(localP - vec3(0.0, height - 1.0, 0.0), envelope(instanceTime, 1.0, (5.5/4.0), (5.5/2.0), 5.5)*3.0+((sin(time*25.0)*0.35)*(1.0-instanceFade)), height);
+
+        if (shape < d) {
+            d = shape;
+            outTime = instanceTime;
+        }
     }
 
     return d;
@@ -160,20 +144,22 @@ void main() {
     float accumAlpha = 0.0;
 
     float t = 0.0;
-    float maxDist = hasSurface ? sceneDist + SURFACE_FADE : 750.0;
+    float maxDist = hasSurface ? sceneDist + 6.75 : 750.0;
 
+    float dummyTime;
     for (int i = 0; i < 64; i++) {
-        float d = map(rayOrigin + rayDir * t);
+        float d = map(rayOrigin + rayDir * t, dummyTime);
         if (d < 0.01 || t > maxDist) break;
         t += d;
     }
 
     if (t < maxDist) {
-        for (int i = 0; i < STEPS; i++) {
+        for (int i = 0; i < 30; i++) {
             if (t > maxDist) break;
 
             vec3 samplePos = rayOrigin + rayDir * t;
-            float d = map(samplePos);
+            float hitTime;
+            float d = map(samplePos, hitTime);
 
             if (d <= 0.0) {
                 float density = clamp(-d, 0.0, 1.0);
@@ -181,12 +167,12 @@ void main() {
 
                 if (hasSurface) {
                     float sampleDepthView = (ViewMat * vec4(samplePos - cameraPos, 1.0)).z;
-                    density *= applyDepthFade(sceneDepthView, sampleDepthView, SURFACE_FADE);
+                    density *= applyDepthFade(sceneDepthView, sampleDepthView, 6.75);
                 }
 
-                float stepAlpha = clamp(density * FOG_DENSITY * VOLUME_STEP_SIZE, 0.0, 1.0);
+                float stepAlpha = clamp(density * 1.95 * 0.25, 0.0, 1.0);
 
-                float lifetimeFade = 1.0 - clamp(time / MAX_LIFETIME, 0.0, 1.0);
+                float lifetimeFade = 1.0 - clamp(hitTime / 5.5, 0.0, 1.0);
                 stepAlpha *= lifetimeFade;
 
                 accumColor += (1.0 - accumAlpha) * stepAlpha;
@@ -194,24 +180,17 @@ void main() {
 
                 if (accumAlpha >= 0.995) break;
 
-                t += VOLUME_STEP_SIZE;
+                t += 0.25;
             } else {
-                t += max(d, VOLUME_STEP_SIZE);
+                t += max(d, 0.25);
             }
         }
     }
-
-    float primaryInstanceTime = InstanceCount > 0 ? fetch(DataBuffer, 4) : 0.0;
-    float globalFade = 1.0 - clamp(primaryInstanceTime / MAX_LIFETIME, 0.0, 1.0);
-
-    accumAlpha *= globalFade;
 
     vec2 distToBorder = min(texCoord, 1.0 - texCoord);
     float minDistToEdge = min(distToBorder.x, distToBorder.y);
 
     float edgeFactor = smoothstep(0.0, 0.20, minDistToEdge);
-
-    //float distAlpha = accumAlpha * edgeFactor;
 
     diffuseColor = texture(DiffuseSampler, texCoord);
 
