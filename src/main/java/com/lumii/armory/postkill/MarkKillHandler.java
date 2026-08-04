@@ -5,15 +5,21 @@ import com.lumii.armory.cca.ModComponents;
 import com.lumii.armory.item.DeathMarkItem;
 import com.lumii.armory.registry.ArmoryDamageRegistry;
 import com.lumii.armory.registry.ArmoryItemRegistry;
+import com.lumii.armory.registry.ArmoryPackets;
 import com.lumii.armory.util.ChainEntityUtils;
 import com.lumii.armory.util.time.TickSchedulerServer;
 import com.lumii.armory.util.time.TimeUtils;
 import com.lumii.armory.vfx.mark.MarkedPost;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.Box;
 import net.minecraft.world.GameMode;
 
 public class MarkKillHandler {
@@ -50,7 +56,9 @@ public class MarkKillHandler {
         component.setValue(true);
         ModComponents.MARKED.sync(player);
         player.setHealth(1);
-        MarkedPost.INSTANCE.setActive(true);
+        var buf = PacketByteBufs.create();
+        buf.writeBoolean(true);
+        ServerPlayNetworking.send(player, ArmoryPackets.MARKED_SHADER_STATUS_ID, buf);
         Armory.LOGGER.info("{} was marked.", player.getName().getString());
     }
 
@@ -66,12 +74,18 @@ public class MarkKillHandler {
                 player.damage(ArmoryDamageRegistry.marked(player), Float.MAX_VALUE);
                 TickSchedulerServer.schedule(1, () -> {
                     player.changeGameMode(GameMode.SPECTATOR);
-                    MarkedPost.INSTANCE.setActive(false);
-
+                    var buf = PacketByteBufs.create();
+                    buf.writeBoolean(false);
+                    ServerPlayNetworking.send(player, ArmoryPackets.MARKED_SHADER_STATUS_ID, buf);
+                    Box box = player.getBoundingBox().expand(120);
+                    var buf1 = PacketByteBufs.create();
+                    buf1.writeVector3f(player.getPos().toVector3f());
+                    for (PlayerEntity sPlayer : player.getWorld().getEntitiesByType(EntityType.PLAYER, box, PlayerEntity::isPlayer)) {
+                        ServerPlayNetworking.send((ServerPlayerEntity) sPlayer, ArmoryPackets.MARK_VFX_ID, buf1);
+                    }
                 });
             });
         }
         Armory.LOGGER.info("{} got chartered by a mark!", player.getName().getString());
-        //TODO: Clean up a bit, run VFX on death
     }
 }

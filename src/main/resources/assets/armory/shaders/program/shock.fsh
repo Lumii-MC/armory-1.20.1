@@ -46,18 +46,18 @@ float map(vec3 p, out float outTime) {
     outTime = 0.0;
 
     for (int instance = 0; instance < InstanceCount; instance++) {
-        int index = instance * 5; // Stride is correctly 5 here
+        int index = instance * 5;
         vec3 center = fetch3(DataBuffer, index);
         float scale = fetch(DataBuffer, index + 3);
         float instanceTime = fetch(DataBuffer, index + 4);
 
-        float instanceFade = 1.0 - clamp(instanceTime / 1.5, 0.0, 1.0);
+        float instanceFade = 1.0 - clamp(instanceTime / 3.5, 0.0, 1.0);
 
         vec3 localP = p - center;
 
         float currentTick = instanceTime * 20.0;
 
-        float innerRadius = scale + (currentTick * currentTick) / 80.0;
+        float innerRadius = (scale + (currentTick * currentTick) / 80.0)*5;
 
         float ringThickness = 5.0 * instanceFade;
         float outerRadius = innerRadius + ringThickness;
