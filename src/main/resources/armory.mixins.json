@@ -15,7 +15,6 @@
   "client": [
     "ClientPlayerEntityMixin",
     "KeyboardMixin",
-    "MinecraftClientMixin",
-    "MouseMixin"
+    "MinecraftClientMixin"
   ]
 }

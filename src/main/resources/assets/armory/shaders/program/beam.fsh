@@ -20,7 +20,7 @@ uniform vec2 OutSize;
 in vec2 texCoord;
 out vec4 fragColor;
 
-#define STEPS 20
+#define STEPS 30
 #define SURFACE_FADE 6.75
 #define FOG_DENSITY 1.95
 #define VOLUME_STEP_SIZE 0.25
@@ -124,7 +124,7 @@ float envelope(float time, float amplitude, float riseEnd, float holdEnd, float 
 }
 
 float map(vec3 p) {
-    float d = 1e20;
+    float d = 1e10;
 
     for (int instance = 0; instance < InstanceCount; instance++) {
         int index = instance * 5;
@@ -160,7 +160,7 @@ void main() {
     float accumAlpha = 0.0;
 
     float t = 0.0;
-    float maxDist = hasSurface ? sceneDist + SURFACE_FADE : 100.0;
+    float maxDist = hasSurface ? sceneDist + SURFACE_FADE : 750.0;
 
     for (int i = 0; i < 64; i++) {
         float d = map(rayOrigin + rayDir * t);

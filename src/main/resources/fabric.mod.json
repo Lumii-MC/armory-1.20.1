@@ -21,7 +21,7 @@
 		"fabric-datagen": [
 			"com.lumii.armory.ArmoryDataGenerator"
 		],
-		"cardinal-components": [
+		"cardinal-components-entity": [
 			"com.lumii.armory.cca.ModComponents"
 		]
 	},

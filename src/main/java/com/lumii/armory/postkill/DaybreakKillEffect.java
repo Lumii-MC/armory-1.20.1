@@ -18,6 +18,7 @@ public class DaybreakKillEffect {
                 if (stack.getItem() instanceof DivinityDissonanceItem) {
                     // TODO: Lumii add the fucking permakill please
                     // ykw no, figure it out yourself!!!!!! /silly :3
+                    // bitch fym no its your mod 😭
                 }
             }
         });

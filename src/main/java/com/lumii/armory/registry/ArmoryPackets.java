@@ -16,6 +16,7 @@ public class ArmoryPackets {
     public static final Identifier PARTICLE_SPAWN_ID = new Identifier("armory", "particle_spawn");
     public static final Identifier SHAKE_ID = new Identifier("armory", "screenshake");
     public static final Identifier BEAM_SHAKE_ID = new Identifier("armory", "screenshake_beam");
+    public static final Identifier MARK_VFX_ID = new Identifier("armory", "mark_vfx");
     public static final Identifier DISSONANCE_VFX_ID = new Identifier("armory", "dis_vfx");
     public static final Identifier CHAIN_STATUS_ID = new Identifier("armory", "chain_status");
 
@@ -42,6 +43,12 @@ public class ArmoryPackets {
             client.execute(() -> {
                 ScreenshakeInstance instance = new ScreenshakeInstance((int) (20 * 3f)).setIntensity(0.75f).setEasing(Easing.QUAD_IN_OUT);
                 ScreenshakeHandler.addScreenshake(instance);
+            });
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(MARK_VFX_ID, (client, handler, buf, sender) -> {
+            client.execute(() -> {
+
             });
         });
 

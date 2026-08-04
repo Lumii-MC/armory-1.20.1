@@ -25,8 +25,8 @@ import java.awt.*;
 public class DivinityDissonanceHandler {
 
     public static void addEffect(LivingEntity entity) {
-        for (PlayerEntity player : entity.getWorld().getPlayers()) {
-            ServerPlayNetworking.send((ServerPlayerEntity) player, ArmoryPackets.DISSONANCE_VFX_ID, DissonanceEffectPacket.toBytes(entity));
+        for (ServerPlayerEntity player : entity.getWorld().getEntitiesByClass(ServerPlayerEntity.class, entity.getBoundingBox().expand(120), ServerPlayerEntity::isAlive)) {
+            ServerPlayNetworking.send(player, ArmoryPackets.DISSONANCE_VFX_ID, DissonanceEffectPacket.toBytes(entity));
         }
     }
 

@@ -45,7 +45,7 @@ public class DissonanceKillHandler {
                             TickSchedulerServer.schedule(TimeUtils.seconds(2)+1/2, () -> {
                                 ChainEntityUtils.setChained(living, false);
                                 living.damage(ArmoryDamageRegistry.beam(living), Float.MAX_VALUE);
-                                for (ServerPlayerEntity srplayer : player.getServer().getOverworld().getPlayers()) {
+                                for (ServerPlayerEntity srplayer : player.getWorld().getEntitiesByClass(ServerPlayerEntity.class, living.getBoundingBox().expand(120), ServerPlayerEntity::isAlive)) {
                                     LuxFlashRenderer.sendFlash(srplayer, new Color(243, 207, 117, 255).getRGB());
                                     ServerPlayNetworking.send(srplayer, ArmoryPackets.BEAM_SHAKE_ID, PacketByteBufs.empty());
                                 }

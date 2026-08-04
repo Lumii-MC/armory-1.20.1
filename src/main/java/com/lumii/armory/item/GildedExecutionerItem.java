@@ -97,7 +97,7 @@ public class GildedExecutionerItem extends SwordItem implements SimpleModelItem,
                 ServerPlayerEntity srPlayer = (ServerPlayerEntity) attacker;
                 if (srPlayer != null) {
                     int delayTicks = TimeUtils.seconds(2);
-                    for (ServerPlayerEntity player : srPlayer.getServerWorld().getPlayers()) {
+                    for (ServerPlayerEntity player : srPlayer.getWorld().getEntitiesByClass(ServerPlayerEntity.class, target.getBoundingBox().expand(120), ServerPlayerEntity::isAlive)) {
                         QuadRenderer.scheduleCommon(player.getServerWorld(), targetPos.subtract(0, 1.59, 0), 1F, 1F,
                                 new Vec3d(90, 0, 0), 2 ,Armory.id("textures/vfx/execution_ring.png"), delayTicks, false, 1,
                                 true, 1, 10f,

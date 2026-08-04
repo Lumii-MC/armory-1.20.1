@@ -46,7 +46,7 @@ public class GuillotineItem extends SwordItem implements CustomCritEffectItem, S
 
     @Override
     public void critEffect(ItemStack itemStack, World world, LivingEntity attacker, LivingEntity target) {
-        if (isHooking == false){
+        if (!isHooking){
             target.playSound(ArmorySoundsRegistry.SLASH, 1, 1);
             Vec3d toAttacker = attacker.getPos().subtract(target.getPos()).normalize();
             double strength = 1.1;
@@ -58,7 +58,7 @@ public class GuillotineItem extends SwordItem implements CustomCritEffectItem, S
             );
             target.velocityModified = true;
         }
-        if (isHooking == true){
+        if (isHooking){
             target.playSound(ArmorySoundsRegistry.SLASH, 2, 1);
             Vec3d toTarget = target.getPos().subtract(attacker.getPos()).normalize();
             double strength = 1.1;
@@ -74,11 +74,11 @@ public class GuillotineItem extends SwordItem implements CustomCritEffectItem, S
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-        if (user.isSneaking() && isHooking == false){
+        if (user.isSneaking() && !isHooking){
             isHooking = true;
             user.sendMessage(Text.literal("Mode: HOOK").formatted(Formatting.DARK_RED), true);
         }
-        if (!user.isSneaking() && isHooking == true){
+        if (!user.isSneaking() && isHooking){
             isHooking = false;
             user.sendMessage(Text.literal("Mode: REAP").formatted(Formatting.GOLD), true);
         }
@@ -123,7 +123,7 @@ public class GuillotineItem extends SwordItem implements CustomCritEffectItem, S
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         tooltip.add(Text.translatable("tooltip.armory.guillotine1").formatted(Formatting.DARK_RED));
-        if (isHooking == false){
+        if (!isHooking){
             tooltip.add(Text.translatable("tooltip.armory.guillotine2").formatted(Formatting.GOLD));
         }
         if (isHooking){
