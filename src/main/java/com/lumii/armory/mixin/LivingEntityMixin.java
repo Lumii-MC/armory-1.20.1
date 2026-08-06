@@ -1,5 +1,6 @@
 package com.lumii.armory.mixin;
 
+import com.lumii.armory.cca.ModComponents;
 import com.lumii.armory.item.GildedExecutionerItem;
 import com.lumii.armory.registry.ArmoryDamageRegistry;
 import com.lumii.armory.util.ChainEntityUtils;
@@ -7,6 +8,7 @@ import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

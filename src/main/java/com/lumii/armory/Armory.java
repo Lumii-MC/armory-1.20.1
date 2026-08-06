@@ -1,7 +1,6 @@
 package com.lumii.armory;
 
 import com.lumii.armory.cca.ModComponents;
-import com.lumii.armory.postkill.DaybreakKillEffect;
 import com.lumii.armory.postkill.DissonanceKillHandler;
 import com.lumii.armory.postkill.MarkKillHandler;
 import com.lumii.armory.registry.ArmoryItemRegistry;
@@ -35,6 +34,8 @@ public class Armory implements ModInitializer {
 
 		LOGGER.info("Armory Initializing!");
 	}
+
+	//TODO: Move Gilded Executioner's kill FX to its own handler to fix sending 2 death messages
 
 	public static Identifier id(String path) {
 		return new Identifier(MOD_ID, path);
