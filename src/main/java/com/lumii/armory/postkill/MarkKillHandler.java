@@ -30,13 +30,11 @@ public class MarkKillHandler {
             if (!(entity instanceof ServerPlayerEntity player))
                 return true;
 
-            // Allow the execution damage through
             if (source.isOf(ArmoryDamageRegistry.MARKED))
                 return true;
 
             var marked = ModComponents.MARKED.get(player);
 
-            // Already marked death handling
             if (marked.getValue()) {
                 player.setHealth(2);
                 ChainEntityUtils.setChained(player, true);
