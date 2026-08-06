@@ -22,6 +22,55 @@ out vec4 fragColor;
 // Licenced MIT https://opensource.org/license/mit
 // Based on shock.fsh
 
+// Really fast simplex/value noise https://www.shadertoy.com/view/XltXRH
+float oct(vec3 p){
+    return fract(4768.1232345456 * sin((p.x+p.y*43.0+p.z*137.0)));
+}
+float achnoise(vec3 x){
+    vec3 p = floor(x);
+    vec3 fr = smoothstep(0.0, 1.0, fract(x));
+    vec3 LBZ = p + vec3(0.0, 0.0, 0.0);
+    vec3 LTZ = p + vec3(0.0, 1.0, 0.0);
+    vec3 RBZ = p + vec3(1.0, 0.0, 0.0);
+    vec3 RTZ = p + vec3(1.0, 1.0, 0.0);
+
+    vec3 LBF = p + vec3(0.0, 0.0, 1.0);
+    vec3 LTF = p + vec3(0.0, 1.0, 1.0);
+    vec3 RBF = p + vec3(1.0, 0.0, 1.0);
+    vec3 RTF = p + vec3(1.0, 1.0, 1.0);
+
+    float l0candidate1 = oct(LBZ);
+    float l0candidate2 = oct(RBZ);
+    float l0candidate3 = oct(LTZ);
+    float l0candidate4 = oct(RTZ);
+
+    float l0candidate5 = oct(LBF);
+    float l0candidate6 = oct(RBF);
+    float l0candidate7 = oct(LTF);
+    float l0candidate8 = oct(RTF);
+
+    float l1candidate1 = mix(l0candidate1, l0candidate2, fr[0]);
+    float l1candidate2 = mix(l0candidate3, l0candidate4, fr[0]);
+    float l1candidate3 = mix(l0candidate5, l0candidate6, fr[0]);
+    float l1candidate4 = mix(l0candidate7, l0candidate8, fr[0]);
+
+
+    float l2candidate1 = mix(l1candidate1, l1candidate2, fr[1]);
+    float l2candidate2 = mix(l1candidate3, l1candidate4, fr[1]);
+
+
+    float l3candidate1 = mix(l2candidate1, l2candidate2, fr[2]);
+
+    return l3candidate1;
+}
+
+float supernoise3d(vec3 p){
+
+    float a =  achnoise(p);
+    float b =  achnoise(p + 120.5);
+    return (a + b) * 0.5;
+}
+
 float fetch(samplerBuffer DataBuffer, int index) {
     return texelFetch(DataBuffer, index).r;
 }
@@ -134,6 +183,7 @@ float envelope(float time, float amplitude, float riseEnd, float holdEnd, float 
     return 0.0;
 }
 
+
 float map(vec3 p, out float outTime) {
     float d = 1e10;
     outTime = 0.0;
@@ -148,7 +198,8 @@ float map(vec3 p, out float outTime) {
         vec3 localP = p - center;
 
         float height = 1200.0;
-        float shape = sdCylinder(localP - vec3(0.0, height - 1.0, 0.0), envelope(instanceTime, 1.0, (5.5/4.0), (5.5/2.0), 5.5)*3.0+((sin(time*25.0)*0.35)*(1.0-instanceFade)), height);
+        // this is some comically large line of code
+        float shape = sdCylinder(localP - vec3(0.0, height - 1.0, 0.0), envelope(instanceTime, 1.0, (5.5/4.0), (5.5/2.0), 5.5)*3.0+((sin(time*25.0)*0.35)*(1.0-instanceFade)), height) - supernoise3d(p + vec3(0, instanceTime*instanceTime*instanceTime, 0));
 
         if (shape < d) {
             d = shape;
@@ -178,14 +229,14 @@ void main() {
     float maxDist = hasSurface ? sceneDist + 6.75 : 750.0;
 
     float dummyTime;
-    for (int i = 0; i < 64; i++) {
+    for (int i = 0; i < 32; i++) {
         float d = map(rayOrigin + rayDir * t, dummyTime);
         if (d < 0.01 || t > maxDist) break;
         t += d;
     }
 
     if (t < maxDist) {
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 25; i++) {
             if (t > maxDist) break;
 
             vec3 samplePos = rayOrigin + rayDir * t;
