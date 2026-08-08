@@ -49,7 +49,7 @@ public class DissonanceKillHandler {
                                     LuxFlashRenderer.sendFlash(srplayer, new Color(243, 207, 117, 255).getRGB());
                                     ServerPlayNetworking.send(srplayer, ArmoryPackets.BEAM_SHAKE_ID, PacketByteBufs.empty());
                                 }
-                                living.getServer().sendMessage(Text.literal(living.getEntityName() + "got fucking chartered"));
+                                living.getServer().sendMessage(Text.literal(living.getEntityName() + " got fucking chartered"));
                             });
                             DivinityDissonanceHandler.addEffect(living);
                             living.getWorld().playSound(

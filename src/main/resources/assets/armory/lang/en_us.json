@@ -12,8 +12,8 @@
   "death.attack.daybreak": "%1$s experienced the end of dawn",
   "death.attack.beam": "%1$s experienced the dissonance of divinity",
   "death.attack.beam.player": "%1$s was raptured by higher forces",
-  "death.attack.marked": "%1$s was taken by the curse of death",
-  "death.attack.marked.player": "%1$s was taken by the curse of death",
+  "death.attack.marked": "%1$s's debt was paid",
+  "death.attack.marked.player": "%2$s's debt was paid by %1$s",
 
   "sounds.armory.slash": "Heavy slash",
   "sounds.armory.execution": "Entity is executed",
