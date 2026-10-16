@@ -3,7 +3,6 @@ package com.lumii.armory.item;
 import com.lumii.armory.registry.ArmorySoundsRegistry;
 import com.lumii.armory.util.ChainEntityUtils;
 import com.lumii.armory.util.time.TickSchedulerServer;
-import com.lumii.armory.util.time.TimeUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -15,6 +14,8 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
+import org.carpentry.citrine.api.cooldown.StackCooldownManager;
+import org.carpentry.citrine.api.util.TimeUtils;
 
 public class HandbellItem extends Item {
     public HandbellItem(Settings settings) {
@@ -23,8 +24,11 @@ public class HandbellItem extends Item {
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+        ItemStack stack = user.getStackInHand(hand);
         if (!world.isClient) {
-            if (!user.isCreative()) user.getItemCooldownManager().set(this, TimeUtils.seconds(45));
+            if (!user.isCreative()){
+                StackCooldownManager.setCooldown(world, stack, TimeUtils.seconds(45));
+            }
 
             Box box = user.getBoundingBox().expand(10);
 

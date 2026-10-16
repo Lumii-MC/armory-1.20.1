@@ -3,7 +3,7 @@
 	"credit": "Made with Blockbench",
 	"parent": "item/handheld",
 	"textures": {
-		"layer0": "armory:item/guillotine_skin"
+		"layer0": "armory:item/guillotine_revamp"
 	},
 	"display": {
 		"thirdperson_righthand": {

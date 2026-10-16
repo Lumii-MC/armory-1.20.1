@@ -3,7 +3,7 @@
 	"credit": "Made with Blockbench",
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "armory:item/guillotine_skin_gui"
+		"layer0": "armory:item/guillotine_revamp_gui"
 	},
 	"gui_light": "front",
 	"display": {}

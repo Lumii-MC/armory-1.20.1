@@ -1,9 +1,6 @@
 package com.lumii.armory.item;
 
-import com.lumii.armory.Armory;
 import com.lumii.armory.registry.ArmoryItemRegistry;
-import net.chemthunder.reflect.api.ReflectPlugin;
-import net.chemthunder.reflect.api.presets.ReflectModelPresets;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ToolMaterial;
@@ -22,11 +19,9 @@ public class BreakableGuillotineItem extends GuillotineItem{
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         ItemStack stack = user.getStackInHand(hand);
         if (!world.isClient){
-            user.dropItem(ArmoryItemRegistry.GUILLOTINE_SHARD);
-            user.dropItem(ArmoryItemRegistry.GUILLOTINE_SHARD);
-            user.dropItem(ArmoryItemRegistry.GUILLOTINE_SHARD);
-            user.dropItem(ArmoryItemRegistry.GUILLOTINE_SHARD);
-            user.dropItem(ArmoryItemRegistry.GUILLOTINE_SHARD);
+            for (int i = 0; i < 5; i++) {
+                user.dropItem(ArmoryItemRegistry.GUILLOTINE_SHARD);
+            }
 
             world.playSound(
                     null,
@@ -37,26 +32,6 @@ public class BreakableGuillotineItem extends GuillotineItem{
                     1);
         }
         stack.decrement(1);
-        return super.use(world, user, hand);
-    }
-
-    @Override
-    public ReflectPlugin getPlugin() {
-        return Armory.BASE;
-    }
-
-    @Override
-    public String primaryModel() {
-        return "guillotine_breakable";
-    }
-
-    @Override
-    public String secondaryModel() {
-        return "guillotine_breakable_gui";
-    }
-
-    @Override
-    public ReflectModelPresets getPreset(ItemStack itemStack) {
-        return ReflectModelPresets.Handheld;
+        return TypedActionResult.consume(stack);
     }
 }

@@ -42,6 +42,9 @@ public class ArmoryItemRegistry {
     public static final Item DAYBREAK_EDICT = Registry.register(Registries.ITEM, new Identifier(
             "armory", "daybreak_edict"), new GildedExecutionerItem(ToolMaterials.NETHERITE, new Item.Settings())
     );
+    public static final Item WORLD_REMOTE = Registry.register(Registries.ITEM, new Identifier(
+            "armory", "world_remote"), new WorldRemoteItem(new Item.Settings().maxCount(1))
+    );
 
     public static void init(){}
 
@@ -58,6 +61,7 @@ public class ArmoryItemRegistry {
                         entries.add(DIVINITY_DISSONANCE);
                         entries.add(HANDBELL);
                         entries.add(DEATH_MARK);
+                        entries.add(WORLD_REMOTE);
                         entries.add(GUILLOTINE_SHARD);
                     })
                     .build()

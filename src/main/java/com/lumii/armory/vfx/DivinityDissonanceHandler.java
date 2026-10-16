@@ -4,7 +4,7 @@ import com.lumii.armory.Armory;
 import com.lumii.armory.packets.DissonanceEffectPacket;
 import com.lumii.armory.registry.ArmoryPackets;
 import com.lumii.armory.util.time.TickSchedulerClient;
-import com.lumii.armory.util.time.TimeUtils;
+
 import com.lumii.armory.util.visual.QuadRenderer;
 import com.lumii.armory.vfx.beam.BeamPost;
 import com.lumii.armory.vfx.beam.BeamPostHandler;
@@ -15,6 +15,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
+import org.carpentry.citrine.api.util.TimeUtils;
 import team.lodestar.lodestone.registry.common.particle.LodestoneParticleRegistry;
 import team.lodestar.lodestone.systems.particle.builder.WorldParticleBuilder;
 import team.lodestar.lodestone.systems.particle.data.GenericParticleData;
