@@ -1,15 +1,20 @@
 package com.lumii.armory.item;
 
 import com.lumii.armory.Armory;
+import com.lumii.armory.registry.ArmoryPackets;
 import com.lumii.armory.registry.ArmorySoundsRegistry;
 import com.lumii.armory.util.time.TickSchedulerServer;
 import com.lumii.armory.util.visual.QuadRenderer;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -17,6 +22,7 @@ import net.minecraft.world.World;
 import org.carpentry.citrine.api.client.flash.FlashEasingType;
 import org.carpentry.citrine.api.client.flash.ScreenFlashManager;
 import org.carpentry.citrine.api.util.TimeUtils;
+import team.lodestar.lodestone.systems.easing.Easing;
 
 import java.awt.*;
 import java.util.UUID;
@@ -26,6 +32,11 @@ public class WorldRemoteItem extends Item {
         super(settings);
     }
     private static final UUID AZMODIAN_UUID = UUID.fromString("5622cd73-ce65-4977-9fab-8d7e3e89d98a");
+
+    @Override
+    public Text getName() {
+        return Text.literal("World Remote").styled(s -> s.withColor(new Color(0xc93426).getRGB()));
+    }
 
     @Override
     public ActionResult useOnBlock(ItemUsageContext context) {
@@ -46,8 +57,12 @@ public class WorldRemoteItem extends Item {
             }
 
             TickSchedulerServer.schedule(delayTicks, () -> {
+                PacketByteBuf buf1 = PacketByteBufs.create();
+                buf1.writeFloat(TimeUtils.seconds(3.5f));
+                buf1.writeInt(new Color(0xc93426).getRGB());
+                buf1.writeInt(FlashEasingType.LINEAR.ordinal());
                 for (ServerPlayerEntity sPlayer : serverWorld.getPlayers()) {
-                    ScreenFlashManager.addFlash(TimeUtils.seconds(3.5f), new Color(0xc93426), FlashEasingType.LINEAR);
+                    ServerPlayNetworking.send(sPlayer, ArmoryPackets.FLASH_ID, buf1);
                 }
 
                 serverWorld.playSound(null, pos, ArmorySoundsRegistry.EXECUTION,
@@ -58,6 +73,16 @@ public class WorldRemoteItem extends Item {
                     target.teleport(serverWorld,
                             pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5,
                             target.getYaw(), target.getPitch());
+                }
+            });
+
+            TickSchedulerServer.schedule(delayTicks / 2, () -> {
+                PacketByteBuf buf2 = PacketByteBufs.create();
+                buf2.writeVector3f(quadPos.toVector3f());
+                buf2.writeFloat(TimeUtils.seconds(3.5f));
+                buf2.writeInt(new Color(0xc93426).getRGB());
+                for (ServerPlayerEntity sPlayer : serverWorld.getPlayers()) {
+                    ServerPlayNetworking.send(sPlayer, ArmoryPackets.COLORED_BEAM_ID, buf2);
                 }
             });
         }

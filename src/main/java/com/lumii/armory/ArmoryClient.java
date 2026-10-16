@@ -20,6 +20,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 import team.lodestar.lodestone.systems.postprocess.PostProcessHandler;
 
+import java.awt.*;
+
 public class ArmoryClient implements ClientModInitializer {
     public void onInitializeClient() {
         ArmoryPackets.initClient();
@@ -43,7 +45,7 @@ public class ArmoryClient implements ClientModInitializer {
             ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
                 dispatcher.register(ClientCommandManager.literal("devAddBeam")
                         .executes(context -> {
-                            var instance = new BeamPost(MinecraftClient.getInstance().player.getEyePos().add(MinecraftClient.getInstance().player.getRotationVecClient().multiply(7)));
+                            var instance = new BeamPost(MinecraftClient.getInstance().player.getEyePos().add(MinecraftClient.getInstance().player.getRotationVecClient().multiply(7)), new Color(255, 255, 255).getRGB());
                             instance = BeamPostHandler.INSTANCE.addFxInstance(instance);
                             BeamPost finalInstance = instance;
                             TickSchedulerClient.schedule((int) (5.5*20), () -> {

@@ -16,9 +16,6 @@ import org.slf4j.LoggerFactory;
 
 public class Armory implements ModInitializer {
 	public static final String MOD_ID = "armory";
-
-
-
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	@Override

@@ -10,7 +10,6 @@ import com.lumii.armory.vfx.beam.BeamPost;
 import com.lumii.armory.vfx.beam.BeamPostHandler;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
@@ -54,7 +53,7 @@ public class DivinityDissonanceHandler {
                 1, QuadRenderer.SpinAxis.Z, 5f);
 
         TickSchedulerClient.schedule(TimeUtils.seconds(delaySecs) - 15, () -> {
-            var instance = new BeamPost(pos);
+            var instance = new BeamPost(pos, new Color(255, 243, 174).getRGB());
             BeamPostHandler.INSTANCE.addFxInstance(instance);
 
             TickSchedulerClient.scheduleRepeating(TimeUtils.seconds(delaySecs) * 2, a -> {

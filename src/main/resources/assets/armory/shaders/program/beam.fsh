@@ -184,7 +184,7 @@ float envelope(float time, float amplitude, float riseEnd, float holdEnd, float 
 }
 
 
-float map(vec3 p, out float outTime) {
+float map(vec3 p, out float outTime, out vec3 outColor) {
     float d = 1e10;
     outTime = 0.0;
 
@@ -192,6 +192,7 @@ float map(vec3 p, out float outTime) {
         int index = instance * 4;
         vec3 center = fetch3(DataBuffer, index);
         float instanceTime = fetch(DataBuffer, index + 3);
+        vec3 color = fetch3(DataBuffer, index + 4);
 
         float instanceFade = 1.0 - clamp(instanceTime / 5.5, 0.0, 1.0);
 
@@ -205,11 +206,13 @@ float map(vec3 p, out float outTime) {
             d = shape;
             outTime = instanceTime;
         }
+        outColor = color;
     }
 
     return d;
 }
 
+const int STEP_COUNT = 64;
 void main() {
     vec4 diffuseColor = texture(DiffuseSampler, texCoord);
     float sceneDepth = texture(MainDepthSampler, texCoord).r;
@@ -225,23 +228,19 @@ void main() {
     vec3 accumColor = vec3(0.0);
     float accumAlpha = 0.0;
 
+    vec3 colorDummy = vec3(0);
+
     float t = 0.0;
     float maxDist = hasSurface ? sceneDist + 6.75 : 750.0;
 
-    float dummyTime;
-    for (int i = 0; i < 32; i++) {
-        float d = map(rayOrigin + rayDir * t, dummyTime);
-        if (d < 0.01 || t > maxDist) break;
-        t += d;
-    }
-
     if (t < maxDist) {
-        for (int i = 0; i < 25; i++) {
+        for (int i = 0; i < STEP_COUNT; i++) {
             if (t > maxDist) break;
 
             vec3 samplePos = rayOrigin + rayDir * t;
+            vec3 color = vec3(0);
             float hitTime;
-            float d = map(samplePos, hitTime);
+            float d = map(samplePos, hitTime, color);
 
             if (d <= 0.0) {
                 float density = clamp(-d, 0.0, 1.0);
@@ -257,7 +256,7 @@ void main() {
                 float lifetimeFade = 1.0 - clamp(hitTime / 5.5, 0.0, 1.0);
                 stepAlpha *= lifetimeFade;
 
-                accumColor += (1.0 - accumAlpha) * stepAlpha;
+                accumColor += (1.0 - accumAlpha) * stepAlpha * color;
                 accumAlpha += (1.0 - accumAlpha) * stepAlpha;
 
                 if (accumAlpha >= 0.995) break;
@@ -280,9 +279,9 @@ void main() {
     float diffuseGreen = texture(DiffuseSampler, texCoord).g;
     float diffuseBlue = texture(DiffuseSampler, texCoord).b;
 
-    diffuseRed += (accumAlpha * 0.5) * 1.2;
-    diffuseGreen += (accumAlpha * 0.5) * 1.1;
-    diffuseBlue += (accumAlpha * 0.5) * 0.3;
+    diffuseRed += (accumAlpha * 0.5) * accumColor.r * 1.5;
+    diffuseGreen += (accumAlpha * 0.5) * accumColor.g * 1.5;
+    diffuseBlue += (accumAlpha * 0.5) * accumColor.b * 1.5;
 
     fragColor = vec4(vec3(diffuseRed, diffuseGreen, diffuseBlue), diffuseColor.a);
 }

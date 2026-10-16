@@ -20,7 +20,7 @@ public class BeamPostHandler extends MultiInstancePostProcessor<BeamPost> {
 
     @Override
     protected int getDataSizePerInstance() {
-        return 4;
+        return 7;
     }
 
     @Override
