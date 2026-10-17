@@ -14,7 +14,7 @@ public class HookEnchant extends Enchantment {
 
     @Override
     public boolean isAcceptableItem(ItemStack stack) {
-        return stack.isOf(ArmoryItemRegistry.GUILLOTINE_PUB);
+        return stack.isOf(ArmoryItemRegistry.GUILLOTINE_PUB) || stack.isOf(ArmoryItemRegistry.SCISSOR_BLADE);
     }
 
     @Override
