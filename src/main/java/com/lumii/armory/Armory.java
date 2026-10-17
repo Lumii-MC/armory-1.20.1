@@ -2,6 +2,7 @@ package com.lumii.armory;
 
 import com.lumii.armory.cca.ModComponents;
 import com.lumii.armory.postkill.DissonanceKillHandler;
+import com.lumii.armory.postkill.ExecutionerKillHandler;
 import com.lumii.armory.postkill.MarkKillHandler;
 import com.lumii.armory.registry.ArmoryItemRegistry;
 import com.lumii.armory.registry.ArmoryPackets;
@@ -27,6 +28,7 @@ public class Armory implements ModInitializer {
 		TickSchedulerServer.init();
 		DissonanceKillHandler.init();
 		MarkKillHandler.init();
+		ExecutionerKillHandler.init();
 
 		LOGGER.info("Armory Initializing!");
 	}

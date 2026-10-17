@@ -12,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.SwordItem;
 import net.minecraft.item.ToolMaterial;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.*;
@@ -88,7 +89,9 @@ public class GuillotineItem extends SwordItem implements OnCritItem, VaryingMode
     @Override
     public void onCrit(ItemStack itemStack, LivingEntity attacker, LivingEntity target) {
         if (!isHooking){
-            target.playSound(ArmorySoundsRegistry.SLASH, 1, 1);
+            target.getWorld().playSound(null, target.getBlockPos(),
+                    ArmorySoundsRegistry.SLASH,
+                    SoundCategory.NEUTRAL, 1, 1);
             Vec3d toAttacker = attacker.getPos().subtract(target.getPos()).normalize();
             double strength = 1.1;
 

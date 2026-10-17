@@ -28,6 +28,10 @@ public class ArmoryItemRegistry {
             "armory", "guillotine"), new GuillotineItem(ToolMaterials.NETHERITE, new Item.Settings())
     );
 
+    public static final Item GUILLOTINE_PUB = Registry.register(Registries.ITEM, new Identifier(
+            "armory", "pub_guillotine"), new PublicGuillotineItem(ToolMaterials.NETHERITE, new Item.Settings())
+    );
+
     public static final Item GUILLOTINE_BREAKABLE = Registry.register(Registries.ITEM, new Identifier(
             "armory", "guillotine_breakable"), new BreakableGuillotineItem(ToolMaterials.NETHERITE, new Item.Settings())
     );
@@ -58,6 +62,7 @@ public class ArmoryItemRegistry {
                         entries.add(GUILLOTINE);
                         entries.add(DAYBREAK_EDICT);
                         entries.add(WRAITH);
+                        entries.add(GUILLOTINE_PUB);
                         entries.add(DIVINITY_DISSONANCE);
                         entries.add(HANDBELL);
                         entries.add(DEATH_MARK);

@@ -16,7 +16,9 @@ public interface ArmorySoundsRegistry {
     SoundEvent SLASH = create("slash");
     SoundEvent EXECUTION = create("event.execution");
     SoundEvent BIGFUCKINGBEAM = create("event.bigfuckingbeam");
+    SoundEvent REMOTE = create("event.remote");
     SoundEvent HANDBELL = create("item.handbell");
+    SoundEvent WORLD_REMOTE = create("item.world_remote");
     SoundEvent FUCKYOUREARS = create("joke.fuckyourears");
 
     private static SoundEvent create(String path) {

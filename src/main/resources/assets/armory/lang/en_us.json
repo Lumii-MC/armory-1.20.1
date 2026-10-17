@@ -1,5 +1,6 @@
 {
   "item.armory.guillotine": "Guillotine",
+  "item.armory.pub_guillotine": "Guillotine",
   "item.armory.guillotine_breakable": "Guillotine",
   "item.armory.daybreak_edict": "Gilded Executioner",
   "item.armory.guillotine_shard": "Guillotine Shard",
@@ -19,6 +20,8 @@
   "sounds.armory.slash": "Heavy slash",
   "sounds.armory.execution": "Entity is executed",
   "sounds.armory.bigfuckingbeam": "Divinity is called upon",
+  "sounds.armory.remote": "Entity is deployed",
+  "sounds.armory.world_remote": "World Remote is activated",
   "sounds.armory.handbell": "Handbell resonates",
   "sounds.armory.lobotomy": "Fuck your ears, you deserved this",
 

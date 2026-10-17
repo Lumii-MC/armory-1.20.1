@@ -17,10 +17,22 @@
       "armory:event/bigfuckingbeam"
     ]
   },
+  "event.remote": {
+    "subtitle": "sounds.armory.remote",
+    "sounds": [
+      "armory:event/remote"
+    ]
+  },
   "item.handbell": {
     "subtitle": "sounds.armory.handbell",
     "sounds": [
       "armory:item/handbell"
+    ]
+  },
+  "item.world_remote": {
+    "subtitle": "sounds.armory.world_remote",
+    "sounds": [
+      "armory:item/world_remote"
     ]
   },
   "joke.fuckyourears": {
