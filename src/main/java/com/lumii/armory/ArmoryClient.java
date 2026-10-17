@@ -3,6 +3,7 @@ package com.lumii.armory;
 import com.lumii.armory.cca.ModComponents;
 import com.lumii.armory.registry.ArmoryPackets;
 import com.lumii.armory.util.ChainClientTracker;
+import com.lumii.armory.util.scissor.ClientChainRenderer;
 import com.lumii.armory.util.time.TickSchedulerClient;
 import com.lumii.armory.util.visual.CubeRenderer;
 import com.lumii.armory.util.visual.QuadRenderer;
@@ -28,6 +29,7 @@ public class ArmoryClient implements ClientModInitializer {
         TickSchedulerClient.init();
         QuadRenderer.init();
         CubeRenderer.init();
+        ClientChainRenderer.init();
 
         // Single-instance post
         PostProcessHandler.addInstance(DistortionPost.INSTANCE);

@@ -30,5 +30,10 @@
   "tooltip.armory.guillotine3": "Hook mode: pulls you to the target.",
   "tooltip.armory.executioner": "Dawn of the end.",
 
+  "enchantment.armory.reap": "Reap",
+  "enchantment.armory.reap.desc": "Pulls the target towards you.",
+  "enchantment.armory.hook": "Hook",
+  "enchantment.armory.hook.desc": "Pulls you towards the target.",
+
   "itemGroup.armory.group": "Armory"
 }

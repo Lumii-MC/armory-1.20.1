@@ -46,6 +46,9 @@ public class ArmoryItemRegistry {
     public static final Item DAYBREAK_EDICT = Registry.register(Registries.ITEM, new Identifier(
             "armory", "daybreak_edict"), new GildedExecutionerItem(ToolMaterials.NETHERITE, new Item.Settings())
     );
+    public static final Item SCISSOR_BLADE = Registry.register(Registries.ITEM, new Identifier(
+            "armory", "scissor_blade"), new ScissorBladeItem(new Item.Settings())
+    );
     public static final Item WORLD_REMOTE = Registry.register(Registries.ITEM, new Identifier(
             "armory", "world_remote"), new WorldRemoteItem(new Item.Settings().maxCount(1))
     );

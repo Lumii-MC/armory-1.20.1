@@ -69,7 +69,7 @@ public class ExecutionerKillHandler {
             QuadRenderer.scheduleCommon(world, targetPos.subtract(0, 1.59, 0), 1F, 1F,
                     new Vec3d(90, 0, 0), 2, Armory.id("textures/vfx/execution_ring.png"), delayTicks, false, 1,
                     true, 1, 10f,
-                    1, QuadRenderer.SpinAxis.Z, 5f);
+                    1, QuadRenderer.SpinAxis.Z, 5f, true);
         }
 
 
@@ -113,7 +113,7 @@ public class ExecutionerKillHandler {
                     TimeUtils.seconds(3),
                     true, 1,
                     true, 0, 3000,
-                    0.75f);
+                    0.75f, true);
         }
 
 

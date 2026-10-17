@@ -4,9 +4,11 @@ import com.lumii.armory.cca.ModComponents;
 import com.lumii.armory.postkill.DissonanceKillHandler;
 import com.lumii.armory.postkill.ExecutionerKillHandler;
 import com.lumii.armory.postkill.MarkKillHandler;
+import com.lumii.armory.registry.ArmoryEnchantRegistry;
 import com.lumii.armory.registry.ArmoryItemRegistry;
 import com.lumii.armory.registry.ArmoryPackets;
 import com.lumii.armory.registry.ArmorySoundsRegistry;
+import com.lumii.armory.util.scissor.ChainedEntitiesManager;
 import com.lumii.armory.util.time.TickSchedulerServer;
 import net.fabricmc.api.ModInitializer;
 
@@ -23,12 +25,14 @@ public class Armory implements ModInitializer {
 	public void onInitialize() {
 		ArmoryItemRegistry.init();
 		ModComponents.init();
+		ArmoryEnchantRegistry.init();
 		ArmorySoundsRegistry.index();
 		ArmoryPackets.initServer();
 		TickSchedulerServer.init();
 		DissonanceKillHandler.init();
 		MarkKillHandler.init();
 		ExecutionerKillHandler.init();
+		ChainedEntitiesManager.init();
 
 		LOGGER.info("Armory Initializing!");
 	}

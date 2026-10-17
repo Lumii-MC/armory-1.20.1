@@ -60,7 +60,7 @@ public class WorldRemoteItem extends Item {
                 QuadRenderer.scheduleCommon(sPlayer.getServerWorld(), quadPos, 1F, 1F,
                         new Vec3d(90, 0, 0), 3, Armory.id("textures/vfx/remote_target.png"), 50, false, 1,
                         true, 1, 30f,
-                        1, QuadRenderer.SpinAxis.Z, 8f);
+                        1, QuadRenderer.SpinAxis.Z, 8f, true);
             }
 
             TickSchedulerServer.schedule(delayTicks, () -> {

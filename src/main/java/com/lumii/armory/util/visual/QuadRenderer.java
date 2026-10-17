@@ -32,6 +32,9 @@ import java.util.List;
  * <ul>
  *   <li><b>pos:</b> Position of the quad in world space (Vec3d)</li>
  *   <li><b>texture:</b> The texture of the quad, in the format of "namespace", "path/to/texture.png"</li>
+ *   <li><b>tileTexture:</b> What to do when the quad's aspect ratio differs from the texture's aspect ratio.
+ *       {@code false} stretches the texture over the whole quad, {@code true} keeps the texture's
+ *       proportions and tiles it (repeats the UVs) to fill the quad.</li>
  * </ul>
  *
  * @author Homak
@@ -52,7 +55,7 @@ public final class QuadRenderer {
                                       Vec3d rotation, float scale, Identifier texture,
                                       int duration, boolean fade, int fadeStart,
                                       boolean scaleUp, int scaleStart, float scaleFactor,
-                                      float alpha) {
+                                      float alpha, boolean tileTexture) {
 
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeDouble(pos.x); buf.writeDouble(pos.y); buf.writeDouble(pos.z);
@@ -62,6 +65,7 @@ public final class QuadRenderer {
         buf.writeInt(duration); buf.writeBoolean(fade); buf.writeInt(fadeStart);
         buf.writeBoolean(scaleUp); buf.writeInt(scaleStart); buf.writeFloat(scaleFactor);
         buf.writeFloat(alpha);
+        buf.writeBoolean(tileTexture);
 
         for (ServerPlayerEntity player : world.getPlayers()) {
             ServerPlayNetworking.send(player, QUAD_PACKET_ID, buf);
@@ -72,7 +76,7 @@ public final class QuadRenderer {
                                       Vec3d rotation, float scale, Identifier texture,
                                       int duration, boolean fade, int fadeStart,
                                       boolean scaleUp, int scaleStart, float scaleFactor,
-                                      float alpha, SpinAxis rotationAxis, float rotMult) {
+                                      float alpha, SpinAxis rotationAxis, float rotMult, boolean tileTexture) {
 
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeDouble(pos.x); buf.writeDouble(pos.y); buf.writeDouble(pos.z);
@@ -83,6 +87,7 @@ public final class QuadRenderer {
         buf.writeBoolean(scaleUp); buf.writeInt(scaleStart); buf.writeFloat(scaleFactor);
         buf.writeFloat(alpha);
         buf.writeInt(rotationAxis.ordinal()); buf.writeFloat(rotMult);
+        buf.writeBoolean(tileTexture);
 
         for (ServerPlayerEntity player : world.getPlayers()) {
             ServerPlayNetworking.send(player, QUAD_PACKET_SPIN_ID, buf);
@@ -93,20 +98,20 @@ public final class QuadRenderer {
                                       Vec3d rotation, float scale, Identifier texture,
                                       int duration, boolean fade, int fadeStart,
                                       boolean scaleUp, int scaleStart, float scaleFactor,
-                                      float alpha) {
+                                      float alpha, boolean tileTexture) {
         scheduleClient(pos, width, height, rotation, scale, texture, duration, fade, fadeStart,
-                scaleUp, scaleStart, scaleFactor, alpha, SpinAxis.Y, 0f);
+                scaleUp, scaleStart, scaleFactor, alpha, SpinAxis.Y, 0f, tileTexture);
     }
 
     public static void scheduleClient(Vec3d pos, float width, float height,
                                       Vec3d rotation, float scale, Identifier texture,
                                       int duration, boolean fade, int fadeStart,
                                       boolean scaleUp, int scaleStart, float scaleFactor,
-                                      float alpha, SpinAxis spinAxis, float rotMult) {
+                                      float alpha, SpinAxis spinAxis, float rotMult, boolean tileTexture) {
         if (duration <= 0) return;
         synchronized (queuedQuads) {
             queuedQuads.add(new Quad(pos, width, height, rotation, scale, texture, duration,
-                    fade, fadeStart, scaleUp, scaleStart, scaleFactor, alpha, spinAxis, rotMult));
+                    fade, fadeStart, scaleUp, scaleStart, scaleFactor, alpha, spinAxis, rotMult, tileTexture));
         }
     }
 
@@ -114,15 +119,15 @@ public final class QuadRenderer {
                                            Vec3d rotation, float scale, Identifier texture,
                                            int duration, boolean fade, int fadeStart,
                                            boolean scaleUp, int scaleStart, float scaleFactor,
-                                           float baseAlpha) {
+                                           float baseAlpha, boolean tileTexture) {
         int currentFPS = MinecraftClient.getInstance().getCurrentFps();
         if (duration == 1) {
-            scheduleClientFrames(pos, width, height, rotation, scale, texture, 1, fade, fadeStart, scaleUp, scaleStart, scaleFactor, baseAlpha);
+            scheduleClientFrames(pos, width, height, rotation, scale, texture, 1, fade, fadeStart, scaleUp, scaleStart, scaleFactor, baseAlpha, tileTexture);
         } else {
             int durationA = Math.max(1, Math.round(duration * (currentFPS / 240f)));
             int fadeStartA = Math.round(fadeStart * (currentFPS / 240f));
             int scaleStartA = Math.round(scaleStart * (currentFPS / 240f));
-            scheduleClientFrames(pos, width, height, rotation, scale, texture, durationA, fade, fadeStartA, scaleUp, scaleStartA, scaleFactor, baseAlpha);
+            scheduleClientFrames(pos, width, height, rotation, scale, texture, durationA, fade, fadeStartA, scaleUp, scaleStartA, scaleFactor, baseAlpha, tileTexture);
         }
     }
 
@@ -130,12 +135,12 @@ public final class QuadRenderer {
                                             Vec3d rotation, float scale, Identifier texture,
                                             int durationFrames, boolean fade, int fadeStartFrame,
                                             boolean scaleUp, int scaleStartFrame, float scaleFactor,
-                                            float baseAlpha) {
+                                            float baseAlpha, boolean tileTexture) {
         if (durationFrames <= 0) return;
         synchronized (queuedFrameQuads) {
             queuedFrameQuads.add(new QuadFrameTimed(
                     pos, width, height, rotation, scale, texture, durationFrames,
-                    fade, fadeStartFrame, scaleUp, scaleStartFrame, scaleFactor, baseAlpha,
+                    fade, fadeStartFrame, scaleUp, scaleStartFrame, scaleFactor, baseAlpha, tileTexture,
                     frameCounter
             ));
         }
@@ -185,7 +190,8 @@ public final class QuadRenderer {
                     int duration = buf.readInt(); boolean fade = buf.readBoolean(); int fadeStart = buf.readInt();
                     boolean scaleUp = buf.readBoolean(); int scaleStart = buf.readInt(); float scaleFactor = buf.readFloat();
                     float alpha = buf.readFloat();
-                    client.execute(() -> scheduleClient(pos, width, height, rotation, scale, texture, duration, fade, fadeStart, scaleUp, scaleStart, scaleFactor, alpha));
+                    boolean tileTexture = buf.readBoolean();
+                    client.execute(() -> scheduleClient(pos, width, height, rotation, scale, texture, duration, fade, fadeStart, scaleUp, scaleStart, scaleFactor, alpha, tileTexture));
                 }
         );
 
@@ -201,7 +207,8 @@ public final class QuadRenderer {
                     boolean scaleUp = buf.readBoolean(); int scaleStart = buf.readInt(); float scaleFactor = buf.readFloat();
                     float alpha = buf.readFloat();
                     int axisNum = buf.readInt(); SpinAxis axis = SpinAxis.values()[axisNum]; float mult = buf.readFloat();
-                    client.execute(() -> scheduleClient(pos, width, height, rotation, scale, texture, duration, fade, fadeStart, scaleUp, scaleStart, scaleFactor, alpha, axis, mult));
+                    boolean tileTexture = buf.readBoolean();
+                    client.execute(() -> scheduleClient(pos, width, height, rotation, scale, texture, duration, fade, fadeStart, scaleUp, scaleStart, scaleFactor, alpha, axis, mult, tileTexture));
                 }
         );
     }
@@ -254,8 +261,8 @@ public final class QuadRenderer {
         int r = 255, g = 255, b = 255;
         int a = (int) (alpha * 255);
 
-        float uMax = q.width;
-        float vMax = q.height;
+        float uMax = CubeRenderer.uvMaxU(q.texture, q.width, q.height, q.tileTexture);
+        float vMax = CubeRenderer.uvMaxV(q.texture, q.width, q.height, q.tileTexture);
 
         BufferBuilder buffer = Tessellator.getInstance().getBuffer();
         buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
@@ -311,8 +318,8 @@ public final class QuadRenderer {
         int r = 255, g = 255, b = 255;
         int a = (int) (alpha * 255);
 
-        float uMax = q.width;
-        float vMax = q.height;
+        float uMax = CubeRenderer.uvMaxU(q.texture, q.width, q.height, q.tileTexture);
+        float vMax = CubeRenderer.uvMaxV(q.texture, q.width, q.height, q.tileTexture);
 
         BufferBuilder buffer = Tessellator.getInstance().getBuffer();
         buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
@@ -330,30 +337,32 @@ public final class QuadRenderer {
         Vec3d position; float width, height; Vec3d rotation; float scale; Identifier texture;
         int duration, maxDuration; int prevDuration; boolean fade; int fadeStart;
         boolean scaleUp; int scaleStart; float scaleFactor; float baseAlpha;
-        SpinAxis spinAxis; float rotMult;
+        SpinAxis spinAxis; float rotMult; boolean tileTexture;
 
         Quad(Vec3d pos, float w, float h, Vec3d rot, float s, Identifier tex,
              int duration, boolean fade, int fadeStart, boolean scaleUp, int scaleStart, float scaleFactor, float baseAlpha,
-             SpinAxis spinAxis, float rotMult) {
+             SpinAxis spinAxis, float rotMult, boolean tileTexture) {
             this.position = pos; this.width = w; this.height = h; this.rotation = rot; this.scale = s;
             this.texture = tex; this.duration = duration; this.prevDuration = duration; this.maxDuration = duration;
             this.fade = fade; this.fadeStart = fadeStart; this.scaleUp = scaleUp; this.scaleStart = scaleStart;
             this.scaleFactor = scaleFactor; this.baseAlpha = baseAlpha; this.spinAxis = spinAxis; this.rotMult = rotMult;
+            this.tileTexture = tileTexture;
         }
     }
 
     private static class QuadFrameTimed {
         Vec3d position; float width, height; Vec3d rotation; float scale; Identifier texture;
         int durationFrames; int startFrame; boolean fade; int fadeStartFrame;
-        boolean scaleUp; int scaleStartFrame; float scaleFactor; float baseAlpha;
+        boolean scaleUp; int scaleStartFrame; float scaleFactor; float baseAlpha; boolean tileTexture;
 
         QuadFrameTimed(Vec3d pos, float w, float h, Vec3d rot, float s, Identifier tex,
-                       int durationFrames, boolean fade, int fadeStartFrame, boolean scaleUp, int scaleStartFrame, float scaleFactor, float baseAlpha,
+                       int durationFrames, boolean fade, int fadeStartFrame, boolean scaleUp, int scaleStartFrame, float scaleFactor, float baseAlpha, boolean tileTexture,
                        int startFrame) {
             this.position = pos; this.width = w; this.height = h; this.rotation = rot; this.scale = s;
             this.texture = tex; this.durationFrames = durationFrames; this.startFrame = startFrame;
             this.fade = fade; this.fadeStartFrame = fadeStartFrame; this.scaleUp = scaleUp;
             this.scaleStartFrame = scaleStartFrame; this.scaleFactor = scaleFactor; this.baseAlpha = baseAlpha;
+            this.tileTexture = tileTexture;
         }
     }
 
@@ -367,7 +376,7 @@ public final class QuadRenderer {
     }
 
     public static void renderImmediate(MatrixStack matrices, Vec3d camPos, Vec3d pos, float width, float height,
-                                       Vec3d rotation, float scale, Identifier texture, float alpha) {
+                                       Vec3d rotation, float scale, Identifier texture, float alpha, boolean doTile) {
         RenderSystem.disableCull(); RenderSystem.enableBlend(); RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest(); RenderSystem.depthMask(false);
         RenderSystem.setShader(GameRenderer::getPositionTexColorProgram); RenderSystem.setShaderTexture(0, texture);
@@ -383,7 +392,8 @@ public final class QuadRenderer {
 
         Matrix4f matrix = matrices.peek().getPositionMatrix();
         float hw = width  / 2f; float hh = height / 2f;
-        float uMax = width; float vMax = height;
+        float uMax = CubeRenderer.uvMaxU(texture, width, height, doTile);
+        float vMax = CubeRenderer.uvMaxV(texture, width, height, doTile);
 
         BufferBuilder buffer = Tessellator.getInstance().getBuffer();
         buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);

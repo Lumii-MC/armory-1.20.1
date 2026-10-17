@@ -50,7 +50,7 @@ public class DivinityDissonanceHandler {
                 TimeUtils.seconds(delaySecs),
                 false, 1,
                 true, 1, 10,
-                1, QuadRenderer.SpinAxis.Z, 5f);
+                1, QuadRenderer.SpinAxis.Z, 5f, true);
 
         TickSchedulerClient.schedule(TimeUtils.seconds(delaySecs) - 15, () -> {
             var instance = new BeamPost(pos, new Color(255, 243, 174).getRGB());

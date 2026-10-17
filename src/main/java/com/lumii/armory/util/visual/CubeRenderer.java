@@ -9,19 +9,27 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
+import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.ResourceType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Licensed MIT, free to use with attribution to the author (Homak)
@@ -73,19 +81,21 @@ public final class CubeRenderer {
             return new TextureFaceData(texture, texture, texture, texture, texture, texture);
         }
 
-        public Identifier getFront()  { return textures[FRONT]; }
-        public Identifier getBack()   { return textures[BACK]; }
-        public Identifier getTop()    { return textures[TOP]; }
+        public Identifier get(int faceIndex) { return textures[faceIndex]; }
+
+        public Identifier getFront() { return textures[FRONT]; }
+        public Identifier getBack() { return textures[BACK]; }
+        public Identifier getTop() { return textures[TOP]; }
         public Identifier getBottom() { return textures[BOTTOM]; }
-        public Identifier getRight()  { return textures[RIGHT]; }
-        public Identifier getLeft()   { return textures[LEFT]; }
+        public Identifier getRight() { return textures[RIGHT]; }
+        public Identifier getLeft() { return textures[LEFT]; }
     }
 
     public static void scheduleCommon(ServerWorld world, Vec3d pos, float width, float height, float depth,
                                       Vec3d rotation, float scale, TextureFaceData textures,
                                       int duration, boolean fade, int fadeStart,
                                       boolean scaleUp, int scaleStart, float scaleFactor,
-                                      float alpha) {
+                                      float alpha, boolean tileTexture) {
 
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeDouble(pos.x); buf.writeDouble(pos.y); buf.writeDouble(pos.z);
@@ -101,6 +111,7 @@ public final class CubeRenderer {
         buf.writeInt(duration); buf.writeBoolean(fade); buf.writeInt(fadeStart);
         buf.writeBoolean(scaleUp); buf.writeInt(scaleStart); buf.writeFloat(scaleFactor);
         buf.writeFloat(alpha);
+        buf.writeBoolean(tileTexture);
 
         for (ServerPlayerEntity player : world.getPlayers()) {
             ServerPlayNetworking.send(player, CUBE_PACKET_ID, buf);
@@ -111,11 +122,11 @@ public final class CubeRenderer {
                                       Vec3d rotation, float scale, TextureFaceData textures,
                                       int duration, boolean fade, int fadeStart,
                                       boolean scaleUp, int scaleStart, float scaleFactor,
-                                      float alpha) {
+                                      float alpha, boolean tileTexture) {
         if (duration <= 0) return;
         synchronized (queuedCubes) {
             queuedCubes.add(new Cube(pos, width, height, depth, rotation, scale, textures, duration,
-                    fade, fadeStart, scaleUp, scaleStart, scaleFactor, alpha));
+                    fade, fadeStart, scaleUp, scaleStart, scaleFactor, alpha, tileTexture));
         }
     }
 
@@ -123,17 +134,17 @@ public final class CubeRenderer {
                                            Vec3d rotation, float scale, TextureFaceData textures,
                                            int duration, boolean fade, int fadeStart,
                                            boolean scaleUp, int scaleStart, float scaleFactor,
-                                           float baseAlpha) {
+                                           float baseAlpha, boolean tileTexture) {
         int currentFPS = MinecraftClient.getInstance().getCurrentFps();
         if (duration == 1) {
             int fadeStartA = Math.round(fadeStart * (currentFPS / 240f));
             int scaleStartA = Math.round(scaleStart * (currentFPS / 240f));
-            scheduleClientFrames(pos, width, height, depth, rotation, scale, textures, 1, fade, fadeStartA, scaleUp, scaleStartA, scaleFactor, baseAlpha);
+            scheduleClientFrames(pos, width, height, depth, rotation, scale, textures, 1, fade, fadeStartA, scaleUp, scaleStartA, scaleFactor, baseAlpha, tileTexture);
         } else {
             int durationA = Math.max(1, Math.round(duration * (currentFPS / 240f)));
             int fadeStartA = Math.round(fadeStart * (currentFPS / 240f));
             int scaleStartA = Math.round(scaleStart * (currentFPS / 240f));
-            scheduleClientFrames(pos, width, height, depth, rotation, scale, textures, durationA, fade, fadeStartA, scaleUp, scaleStartA, scaleFactor, baseAlpha);
+            scheduleClientFrames(pos, width, height, depth, rotation, scale, textures, durationA, fade, fadeStartA, scaleUp, scaleStartA, scaleFactor, baseAlpha, tileTexture);
         }
     }
 
@@ -141,12 +152,12 @@ public final class CubeRenderer {
                                              Vec3d rotation, float scale, TextureFaceData textures,
                                              int durationFrames, boolean fade, int fadeStartFrame,
                                              boolean scaleUp, int scaleStartFrame, float scaleFactor,
-                                             float baseAlpha) {
+                                             float baseAlpha, boolean tileTexture) {
         if (durationFrames <= 0) return;
         synchronized (queuedFrameCubes) {
             queuedFrameCubes.add(new CubeFrameTimed(
                     pos, width, height, depth, rotation, scale, textures, durationFrames,
-                    fade, fadeStartFrame, scaleUp, scaleStartFrame, scaleFactor, baseAlpha,
+                    fade, fadeStartFrame, scaleUp, scaleStartFrame, scaleFactor, baseAlpha, tileTexture,
                     frameCounter
             ));
         }
@@ -200,11 +211,22 @@ public final class CubeRenderer {
                     int duration = buf.readInt(); boolean fade = buf.readBoolean(); int fadeStart = buf.readInt();
                     boolean scaleUp = buf.readBoolean(); int scaleStart = buf.readInt(); float scaleFactor = buf.readFloat();
                     float alpha = buf.readFloat();
+                    boolean tileTexture = buf.readBoolean();
 
-                    client.execute(() -> scheduleClient(pos, width, height, depth, rotation, scale, textures, duration, fade, fadeStart, scaleUp, scaleStart, scaleFactor, alpha));
+                    client.execute(() -> scheduleClient(pos, width, height, depth, rotation, scale, textures, duration, fade, fadeStart, scaleUp, scaleStart, scaleFactor, alpha, tileTexture));
                 }
         );
-        WorldRenderEvents.LAST.register(CubeRenderer::renderQueuedObjects);
+        WorldRenderEvents.END.register(CubeRenderer::renderQueuedObjects);
+
+        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(
+                new SimpleSynchronousResourceReloadListener() {
+                    @Override
+                    public Identifier getFabricId() { return new Identifier("tritium", "cube_renderer_texture_sizes"); }
+
+                    @Override
+                    public void reload(ResourceManager manager) { TEXTURE_SIZES.clear(); }
+                }
+        );
     }
 
     private static void renderQueuedObjects(WorldRenderContext context) {
@@ -319,6 +341,39 @@ public final class CubeRenderer {
         }
     }
 
+    private static final Map<Identifier, int[]> TEXTURE_SIZES = new ConcurrentHashMap<>();
+
+    private static int[] getTextureSize(Identifier id) {
+        int[] cached = TEXTURE_SIZES.get(id);
+        if (cached != null) return cached;
+
+        AbstractTexture texture = MinecraftClient.getInstance().getTextureManager().getTexture(id);
+        RenderSystem.bindTexture(texture.getGlId());
+        int w = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_WIDTH);
+        int h = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_HEIGHT);
+        if (w <= 0 || h <= 0) return null;
+
+        int[] size = {w, h};
+        TEXTURE_SIZES.put(id, size);
+        return size;
+    }
+
+    private static float faceToTextureRatio(Identifier texture, float faceW, float faceH) {
+        int[] size = getTextureSize(texture);
+        if (size == null || faceW <= 0f || faceH <= 0f) return 1f;
+        return (faceW / faceH) / ((float) size[0] / (float) size[1]);
+    }
+
+    static float uvMaxU(Identifier texture, float faceW, float faceH, boolean tile) {
+        if (!tile) return 1f;
+        return Math.max(1f, faceToTextureRatio(texture, faceW, faceH));
+    }
+
+    static float uvMaxV(Identifier texture, float faceW, float faceH, boolean tile) {
+        if (!tile) return 1f;
+        return Math.max(1f, 1f / faceToTextureRatio(texture, faceW, faceH));
+    }
+
     private static void renderCubeFace(MatrixStack matrices, Vec3d camPos,
                                        Cube cube, int faceIndex, float alpha, float scale) {
         matrices.push();
@@ -334,18 +389,15 @@ public final class CubeRenderer {
         float hd = cube.depth  / 2f;
         int a = (int) (alpha * 255);
 
-        float uMax = 1f, vMax = 1f;
+        float faceW, faceH;
         switch (faceIndex) {
-            case TextureFaceData.FRONT:
-            case TextureFaceData.BACK:
-                uMax = cube.width; vMax = cube.height; break;
-            case TextureFaceData.TOP:
-            case TextureFaceData.BOTTOM:
-                uMax = cube.width; vMax = cube.depth; break;
-            case TextureFaceData.RIGHT:
-            case TextureFaceData.LEFT:
-                uMax = cube.depth; vMax = cube.height; break;
+            case TextureFaceData.FRONT, TextureFaceData.BACK  -> { faceW = cube.width; faceH = cube.height; }
+            case TextureFaceData.TOP, TextureFaceData.BOTTOM  -> { faceW = cube.width; faceH = cube.depth; }
+            default                                           -> { faceW = cube.depth; faceH = cube.height; }
         }
+        Identifier faceTexture = cube.textures.get(faceIndex);
+        float uMax = uvMaxU(faceTexture, faceW, faceH, cube.tileTexture);
+        float vMax = uvMaxV(faceTexture, faceW, faceH, cube.tileTexture);
 
         renderFaceGeometry(Tessellator.getInstance().getBuffer(), Tessellator.getInstance(),
                 matrix, cube.textures, faceIndex, hw, hh, hd, uMax, vMax, 255, 255, 255, a);
@@ -367,18 +419,15 @@ public final class CubeRenderer {
         float hd = cube.depth  / 2f;
         int a = (int) (alpha * 255);
 
-        float uMax = 1f, vMax = 1f;
+        float faceW, faceH;
         switch (faceIndex) {
-            case TextureFaceData.FRONT:
-            case TextureFaceData.BACK:
-                uMax = cube.width; vMax = cube.height; break;
-            case TextureFaceData.TOP:
-            case TextureFaceData.BOTTOM:
-                uMax = cube.width; vMax = cube.depth; break;
-            case TextureFaceData.RIGHT:
-            case TextureFaceData.LEFT:
-                uMax = cube.depth; vMax = cube.height; break;
+            case TextureFaceData.FRONT, TextureFaceData.BACK  -> { faceW = cube.width; faceH = cube.height; }
+            case TextureFaceData.TOP, TextureFaceData.BOTTOM  -> { faceW = cube.width; faceH = cube.depth; }
+            default                                           -> { faceW = cube.depth; faceH = cube.height; }
         }
+        Identifier faceTexture = cube.textures.get(faceIndex);
+        float uMax = uvMaxU(faceTexture, faceW, faceH, cube.tileTexture);
+        float vMax = uvMaxV(faceTexture, faceW, faceH, cube.tileTexture);
 
         renderFaceGeometry(Tessellator.getInstance().getBuffer(), Tessellator.getInstance(),
                 matrix, cube.textures, faceIndex, hw, hh, hd, uMax, vMax, 255, 255, 255, a);
@@ -399,15 +448,17 @@ public final class CubeRenderer {
         int scaleStart;
         float scaleFactor;
         float baseAlpha;
+        boolean tileTexture;
 
         Cube(Vec3d pos, float w, float h, float d, Vec3d rot, float s, TextureFaceData tex,
              int duration, boolean fade, int fadeStart,
-             boolean scaleUp, int scaleStart, float scaleFactor, float baseAlpha) {
+             boolean scaleUp, int scaleStart, float scaleFactor, float baseAlpha, boolean tileTexture) {
             this.position = pos; this.width = w; this.height = h; this.depth = d;
             this.rotation = rot; this.scale = s; this.textures = tex;
             this.duration = duration; this.prevDuration = duration; this.maxDuration = duration;
             this.fade = fade; this.fadeStart = fadeStart; this.scaleUp = scaleUp;
             this.scaleStart = scaleStart; this.scaleFactor = scaleFactor; this.baseAlpha = baseAlpha;
+            this.tileTexture = tileTexture;
         }
     }
 
@@ -425,16 +476,18 @@ public final class CubeRenderer {
         int scaleStartFrame;
         float scaleFactor;
         float baseAlpha;
+        boolean tileTexture;
 
         CubeFrameTimed(Vec3d pos, float w, float h, float d, Vec3d rot, float s, TextureFaceData tex,
                        int durationFrames, boolean fade, int fadeStartFrame,
-                       boolean scaleUp, int scaleStartFrame, float scaleFactor, float baseAlpha,
+                       boolean scaleUp, int scaleStartFrame, float scaleFactor, float baseAlpha, boolean tileTexture,
                        int startFrame) {
             this.position = pos; this.width = w; this.height = h; this.depth = d;
             this.rotation = rot; this.scale = s; this.textures = tex;
             this.durationFrames = durationFrames; this.startFrame = startFrame;
             this.fade = fade; this.fadeStartFrame = fadeStartFrame; this.scaleUp = scaleUp;
             this.scaleStartFrame = scaleStartFrame; this.scaleFactor = scaleFactor; this.baseAlpha = baseAlpha;
+            this.tileTexture = tileTexture;
         }
     }
 

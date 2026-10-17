@@ -6,20 +6,26 @@ import com.lumii.armory.packets.ParticleSpawnPacket;
 import com.lumii.armory.packets.ParticleSpawnPacketHandler;
 import com.lumii.armory.postkill.MarkDeathEffect;
 import com.lumii.armory.util.ChainClientTracker;
+import com.lumii.armory.util.scissor.ActiveChain;
+import com.lumii.armory.util.scissor.ClientChainRenderer;
 import com.lumii.armory.util.time.TickSchedulerClient;
 import com.lumii.armory.vfx.beam.BeamPost;
 import com.lumii.armory.vfx.beam.BeamPostHandler;
 import com.lumii.armory.vfx.mark.MarkedPost;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import org.carpentry.citrine.api.client.flash.FlashEasingType;
 import org.carpentry.citrine.api.client.flash.ScreenFlashManager;
+import org.jetbrains.annotations.Nullable;
 import team.lodestar.lodestone.handlers.ScreenshakeHandler;
 import team.lodestar.lodestone.systems.easing.Easing;
 import team.lodestar.lodestone.systems.screenshake.ScreenshakeInstance;
 
 import java.awt.*;
+import java.util.UUID;
 
 public class ArmoryPackets {
     public static final Identifier PARTICLE_SPAWN_ID = new Identifier("armory", "particle_spawn");
@@ -31,6 +37,8 @@ public class ArmoryPackets {
     public static final Identifier DISSONANCE_VFX_ID = new Identifier("armory", "dis_vfx");
     public static final Identifier CHAIN_STATUS_ID = new Identifier("armory", "chain_status");
     public static final Identifier MARKED_SHADER_STATUS_ID = new Identifier("armory", "marked_shader_status");
+
+    public static final Identifier SCISSOR_CHAIN_STATUS_ID = new Identifier("armory", "scissor_chain_status");
 
     public static void initServer(){
     }
@@ -93,5 +101,32 @@ public class ArmoryPackets {
             boolean chained = buf.readBoolean();
             client.execute(() -> ChainClientTracker.setChained(chained));
         } );
+
+        ClientPlayNetworking.registerGlobalReceiver(SCISSOR_CHAIN_STATUS_ID, (client, handler, buf, sender) ->{
+            UUID e1 = buf.readUuid();
+            UUID e2 = buf.readUuid();
+            float len = buf.readFloat();
+            float dur = buf.readFloat();
+            UUID id = buf.readUuid();
+            boolean remove = buf.readBoolean();
+            client.execute(() -> {
+                if (remove) ClientChainRenderer.removeChain(new ActiveChain(getEntityByUuid(client.world, e1), getEntityByUuid(client.world, e2), len, dur, id));
+                else ClientChainRenderer.addChain(new ActiveChain(getEntityByUuid(client.world, e1), getEntityByUuid(client.world, e2), len, dur, id));
+            });
+        } );
+    }
+
+    @Nullable
+    public static Entity getEntityByUuid(ClientWorld world, UUID uuid) {
+        if (world == null || uuid == null) {
+            return null;
+        }
+        for (Entity entity : world.getEntities()) {
+            if (entity.getUuid().equals(uuid)) {
+                return entity;
+            }
+        }
+
+        return null;
     }
 }

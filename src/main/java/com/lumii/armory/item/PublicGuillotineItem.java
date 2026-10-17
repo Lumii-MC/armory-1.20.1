@@ -1,9 +1,12 @@
 package com.lumii.armory.item;
 
+import com.lumii.armory.registry.ArmoryEnchantRegistry;
 import com.lumii.armory.registry.ArmorySoundsRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -59,15 +62,29 @@ public class PublicGuillotineItem extends SwordItem implements OnCritItem, Varyi
             target.getWorld().playSound(null, target.getBlockPos(),
                     ArmorySoundsRegistry.SLASH,
                     SoundCategory.NEUTRAL, 1, 1);
-            Vec3d toAttacker = attacker.getPos().subtract(target.getPos()).normalize();
-            double strength = 1.1;
 
-            target.setVelocity(
-                    toAttacker.x * strength,
-                    toAttacker.y * strength,
-                    toAttacker.z * strength
-            );
-            target.velocityModified = true;
+            if (hasEnchant(itemStack, ArmoryEnchantRegistry.REAP)) {
+                Vec3d toAttacker = attacker.getPos().subtract(target.getPos()).normalize();
+                double strength = 1.1;
+
+                target.setVelocity(
+                        toAttacker.x * strength,
+                        toAttacker.y * strength,
+                        toAttacker.z * strength
+                );
+                target.velocityModified = true;
+            }
+            else if (hasEnchant(itemStack, ArmoryEnchantRegistry.HOOK)) {
+                Vec3d toAttacker = attacker.getPos().subtract(target.getPos()).normalize();
+                double strength = -1.1;
+
+                attacker.setVelocity(
+                        toAttacker.x * strength,
+                        toAttacker.y * strength,
+                        toAttacker.z * strength
+                );
+                attacker.velocityModified = true;
+            }
     }
 
     @Override
@@ -76,7 +93,6 @@ public class PublicGuillotineItem extends SwordItem implements OnCritItem, Varyi
         for (Identifier skin : getSkins()) {
             all.add(skin);
             all.add(PublicGuillotineItem.suffix(skin, "_gui"));
-
         }
         return all;
     }
@@ -88,8 +104,8 @@ public class PublicGuillotineItem extends SwordItem implements OnCritItem, Varyi
         List<Identifier> skins = getSkins();
         boolean skinned = skin >= 0 && skin < skins.size();
 
-        Identifier base     = skinned ? skins.get(skin) : null;
-        Identifier gui      = skinned ? suffix(base, "_gui") : GUI;
+        Identifier base = skinned ? skins.get(skin) : null;
+        Identifier gui = skinned ? suffix(base, "_gui") : GUI;
 
         Identifier id = ModelPresets.handheld(mode, gui);
         if (id != null) return id;
@@ -116,5 +132,9 @@ public class PublicGuillotineItem extends SwordItem implements OnCritItem, Varyi
             return ActionResult.SUCCESS;
         }
         return super.useOnBlock(context);
+    }
+
+    private boolean hasEnchant(ItemStack stack, Enchantment ench) {
+        return EnchantmentHelper.getLevel(ench, stack) > 0;
     }
 }
