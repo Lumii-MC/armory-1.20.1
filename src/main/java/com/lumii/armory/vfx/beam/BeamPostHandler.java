@@ -15,7 +15,7 @@ public class BeamPostHandler extends MultiInstancePostProcessor<BeamPost> {
     private JsonEffectShaderProgram beam;
     @Override
     protected int getMaxInstances() {
-        return 64;
+        return 8;
     }
 
     @Override

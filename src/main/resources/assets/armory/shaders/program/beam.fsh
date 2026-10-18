@@ -189,7 +189,7 @@ float map(vec3 p, out float outTime, out vec3 outColor) {
     outTime = 0.0;
 
     for (int instance = 0; instance < InstanceCount; instance++) {
-        int index = instance * 4;
+        int index = instance * 7;
         vec3 center = fetch3(DataBuffer, index);
         float instanceTime = fetch(DataBuffer, index + 3);
         vec3 color = fetch3(DataBuffer, index + 4);
