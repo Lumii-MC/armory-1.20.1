@@ -18,6 +18,7 @@ import net.minecraft.util.math.Vec3d;
 import org.carpentry.citrine.api.item.OnCritItem;
 import org.carpentry.citrine.api.item.VaryingModelItem;
 import org.carpentry.citrine.api.util.TimeUtils;
+import org.carpentry.citrine.api.util.model.ModelPresets;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -25,8 +26,10 @@ import java.util.UUID;
 
 public class ScissorBladeItem extends SwordItem implements VaryingModelItem, OnCritItem {
     public ScissorBladeItem(Settings settings) {
-        super(ToolMaterials.IRON, 5, -2.4f, settings);
+        super(ToolMaterials.IRON, 5, -2.6f, settings);
     }
+
+    private Identifier GUI = new Identifier("armory", "scissorblade_gui");
 
     @Override
     public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand) {
@@ -37,12 +40,14 @@ public class ScissorBladeItem extends SwordItem implements VaryingModelItem, OnC
 
     @Override
     public List<Identifier> getModels() {
-        return List.of();
+        return List.of(
+                GUI
+        );
     }
 
     @Override
-    public @Nullable Identifier getModel(ItemStack itemStack, @Nullable LivingEntity livingEntity, ModelTransformationMode modelTransformationMode) {
-        return null;
+    public @Nullable Identifier getModel(ItemStack stack, @Nullable LivingEntity holder, ModelTransformationMode mode) {
+        return ModelPresets.handheld(mode, GUI);
     }
 
     @Override
