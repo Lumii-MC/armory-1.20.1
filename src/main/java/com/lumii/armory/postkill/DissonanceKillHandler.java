@@ -45,7 +45,6 @@ public class DissonanceKillHandler {
                                 ChainEntityUtils.setChained(living, false);
                                 living.damage(ArmoryDamageRegistry.beam(living), Float.MAX_VALUE);
                                 for (ServerPlayerEntity srplayer : player.getWorld().getEntitiesByClass(ServerPlayerEntity.class, living.getBoundingBox().expand(120), ServerPlayerEntity::isAlive)) {
-                                    ScreenFlashManager.addFlash(org.carpentry.citrine.api.util.TimeUtils.seconds(3f), FLASH_COL, FlashEasingType.LINEAR);
                                     ServerPlayNetworking.send(srplayer, ArmoryPackets.BEAM_SHAKE_ID, PacketByteBufs.empty());
                                 }
                                 living.getServer().sendMessage(Text.literal(living.getEntityName() + " got fucking chartered"));

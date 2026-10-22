@@ -2,6 +2,7 @@ package com.lumii.armory.vfx;
 
 import com.lumii.armory.Armory;
 import com.lumii.armory.packets.DissonanceEffectPacket;
+import com.lumii.armory.postkill.DissonanceKillHandler;
 import com.lumii.armory.registry.ArmoryPackets;
 import com.lumii.armory.util.time.TickSchedulerClient;
 
@@ -14,6 +15,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
+import org.carpentry.citrine.api.client.flash.FlashEasingType;
+import org.carpentry.citrine.api.client.flash.ScreenFlashManager;
 import org.carpentry.citrine.api.util.TimeUtils;
 import team.lodestar.lodestone.registry.common.particle.LodestoneParticleRegistry;
 import team.lodestar.lodestone.systems.particle.builder.WorldParticleBuilder;
@@ -89,6 +92,7 @@ public class DivinityDissonanceHandler {
                     }
                 }
             });
+            ScreenFlashManager.addFlash(TimeUtils.seconds(3f), DissonanceKillHandler.FLASH_COL, FlashEasingType.LINEAR);
         });
     }
 }

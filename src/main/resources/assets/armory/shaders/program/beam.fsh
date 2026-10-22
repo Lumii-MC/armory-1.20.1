@@ -212,7 +212,7 @@ float map(vec3 p, out float outTime, out vec3 outColor) {
     return d;
 }
 
-const int STEP_COUNT = 64;
+const int STEP_COUNT = 86;
 void main() {
     vec4 diffuseColor = texture(DiffuseSampler, texCoord);
     float sceneDepth = texture(MainDepthSampler, texCoord).r;

@@ -4,6 +4,7 @@ import com.lumii.armory.registry.ArmoryEnchantRegistry;
 import com.lumii.armory.registry.ArmorySoundsRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -15,6 +16,7 @@ import net.minecraft.item.SwordItem;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
@@ -101,7 +103,7 @@ public class PublicGuillotineItem extends SwordItem implements OnCritItem, Varyi
         List<Identifier> all = new ArrayList<>(List.of(GUI));
         for (Identifier skin : getSkins()) {
             all.add(skin);
-            all.add(PublicGuillotineItem.suffix(skin, "_gui"));
+            all.add(suffix(skin, "_gui"));
         }
         return all;
     }
@@ -141,6 +143,11 @@ public class PublicGuillotineItem extends SwordItem implements OnCritItem, Varyi
             return ActionResult.SUCCESS;
         }
         return super.useOnBlock(context);
+    }
+
+    @Override
+    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+        super.appendTooltip(stack, world, tooltip, context);
     }
 
     private boolean hasEnchant(ItemStack stack, Enchantment ench) {
