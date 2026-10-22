@@ -37,6 +37,9 @@ public class PublicGuillotineItem extends SwordItem implements OnCritItem, Varyi
     public static Identifier STRAIGHT = new Identifier("armory", "pub_guillotine_straight");
     public static Identifier FLESH = new Identifier("armory", "pub_guillotine_flesh");
     public static Identifier HONEY = new Identifier("armory", "pub_guillotine_honey");
+    public static Identifier BEE = new Identifier("armory", "pub_guillotine_bee");
+    public static Identifier FOLLY = new Identifier("armory", "pub_guillotine_folly");
+    public static Identifier JEVIL = new Identifier("armory", "pub_guillotine_jevil");
 
     private static Identifier suffix(Identifier id, String s) {
         return new Identifier(id.getNamespace(), id.getPath() + s);
@@ -44,7 +47,13 @@ public class PublicGuillotineItem extends SwordItem implements OnCritItem, Varyi
 
     @Override
     public List<Identifier> getSkins() {
-        return List.of(STRAIGHT, FLESH, HONEY);
+        return List.of(
+                STRAIGHT,
+                FLESH,
+                HONEY,
+                BEE,
+                JEVIL,
+                FOLLY);
     }
 
     @Override
@@ -61,7 +70,7 @@ public class PublicGuillotineItem extends SwordItem implements OnCritItem, Varyi
     public void onCrit(ItemStack itemStack, LivingEntity attacker, LivingEntity target) {
             target.getWorld().playSound(null, target.getBlockPos(),
                     ArmorySoundsRegistry.SLASH,
-                    SoundCategory.NEUTRAL, 1, 1);
+                    SoundCategory.PLAYERS, 0.75f, 1);
 
             if (hasEnchant(itemStack, ArmoryEnchantRegistry.REAP)) {
                 Vec3d toAttacker = attacker.getPos().subtract(target.getPos()).normalize();

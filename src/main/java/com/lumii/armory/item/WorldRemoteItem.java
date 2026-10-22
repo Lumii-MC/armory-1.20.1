@@ -45,7 +45,7 @@ public class WorldRemoteItem extends Item {
 
         if (!world.isClient && player instanceof ServerPlayerEntity srPlayer) {
             ServerWorld serverWorld = srPlayer.getServerWorld();
-            int delayTicks = TimeUtils.seconds(2);
+            int delayTicks = 40;
             Vec3d quadPos = pos.toCenterPos().add(0, 0.51, 0);
             world.playSound(
                     null,
@@ -58,7 +58,7 @@ public class WorldRemoteItem extends Item {
 
             for (ServerPlayerEntity sPlayer : serverWorld.getEntitiesByClass(ServerPlayerEntity.class, srPlayer.getBoundingBox().expand(120), ServerPlayerEntity::isAlive)) {
                 QuadRenderer.scheduleCommon(sPlayer.getServerWorld(), quadPos, 1F, 1F,
-                        new Vec3d(90, 0, 0), 3, Armory.id("textures/vfx/remote_target.png"), 50, false, 1,
+                        new Vec3d(90, 0, 0), 3, Armory.id("textures/vfx/remote_target.png"), 40, false, 1,
                         true, 1, 30f,
                         1, QuadRenderer.SpinAxis.Z, 8f, true);
             }

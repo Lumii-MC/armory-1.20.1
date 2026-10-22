@@ -33,8 +33,8 @@ public class ScissorBladeItem extends SwordItem implements VaryingModelItem, OnC
 
     @Override
     public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand) {
-        if (user.isSneaking()) if (!user.getWorld().isClient) ChainedEntitiesManager.addChain(new ActiveChain(entity, user, 10, TimeUtils.seconds(5), UUID.randomUUID()));
-        if (!user.isSneaking()) if (!user.getWorld().isClient) ChainedEntitiesManager.addChain(new ActiveChain(user, entity, 10, TimeUtils.seconds(5), UUID.randomUUID()));
+        if (user.isSneaking()) if (!user.getWorld().isClient) ChainedEntitiesManager.addChain(new ActiveChain(entity, user, 10, TimeUtils.seconds(25), UUID.randomUUID()));
+        if (!user.isSneaking()) if (!user.getWorld().isClient) ChainedEntitiesManager.addChain(new ActiveChain(user, entity, 10, TimeUtils.seconds(25), UUID.randomUUID()));
         return super.useOnEntity(stack, user, entity, hand);
     }
 
