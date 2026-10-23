@@ -19,8 +19,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import org.carpentry.citrine.api.client.flash.FlashEasingType;
-import org.carpentry.citrine.api.client.flash.ScreenFlashManager;
 import org.carpentry.citrine.api.util.TimeUtils;
 
 import java.awt.*;
