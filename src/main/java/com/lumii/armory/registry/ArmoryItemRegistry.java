@@ -71,6 +71,7 @@ public class ArmoryItemRegistry {
                         entries.add(WRAITH);
                         entries.add(GUILLOTINE_PUB);
                         entries.add(SCISSOR_BLADE);
+                        entries.add(DISCONTINUITY);
                         entries.add(DIVINITY_DISSONANCE);
                         entries.add(HANDBELL);
                         entries.add(DEATH_MARK);
