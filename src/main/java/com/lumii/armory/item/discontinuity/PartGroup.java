@@ -9,6 +9,10 @@ public enum PartGroup {
     PartGroup(String name) {
         this.name = name;
     }
+    public PartGroup next() {
+        PartGroup[] all = values();
+        return all[(ordinal() + 1) % all.length];
+    }
 
     public String getName() {
         return name;

@@ -5,7 +5,9 @@
   "mixins": [
     "EndPortalBlockMixin",
     "EntityMixin",
-    "LivingEntityMixin"
+    "ItemMixin",
+    "LivingEntityMixin",
+    "ScreenHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
@@ -16,6 +18,7 @@
   "client": [
     "ClientPlayerEntityMixin",
     "KeyboardMixin",
-    "MinecraftClientMixin"
+    "MinecraftClientMixin",
+    "TooltipComponentMixin"
   ]
 }

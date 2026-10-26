@@ -10,6 +10,7 @@
   "item.armory.scissorblade": "Scissorblade",
   "item.armory.death_mark": "Cursed Scroll",
   "item.armory.world_remote": "World Remote",
+  "item.armory.discontinuity": "Discontinuity",
 
   "death.attack.daybreak.player": "%1$s has perished by the hands of %2$s",
   "death.attack.daybreak": "%1$s experienced the end of dawn",
@@ -25,6 +26,7 @@
   "sounds.armory.world_remote": "World Remote is activated",
   "sounds.armory.handbell": "Handbell resonates",
   "sounds.armory.lobotomy": "Fuck your ears, you deserved this",
+  "sounds.armory.part_swap": "Discontinuity swaps parts",
 
   "tooltip.armory.guillotine1": "On hit, leeches 2 hearts of health from a target",
   "tooltip.armory.guillotine2": "Reap mode: pulls the target towards you.",

@@ -112,6 +112,7 @@ public class ArmoryClient implements ClientModInitializer {
         ModelLoadingPlugin.register(ctx -> {
             for (PartVariant v : PartVariant.values()) {
                 ctx.addModels(v.getModelId());
+                ctx.addModels(v.getGuiModelId());
             }
         });
 

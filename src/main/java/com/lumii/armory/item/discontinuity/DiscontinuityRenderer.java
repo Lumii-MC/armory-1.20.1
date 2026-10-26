@@ -32,7 +32,13 @@ public class DiscontinuityRenderer implements BuiltinItemRendererRegistry.Dynami
         boolean isGui = (mode == ModelTransformationMode.GUI || mode == ModelTransformationMode.GROUND);
 
         if (isGui) {
-            // HOORAY SUFFERING TIME
+            PartVariant[] parts = new PartVariant[] { data.handle(), data.mid(), data.end() };
+            for (PartVariant part : parts) {
+                if (part.doIgnoreLight()) {
+                    renderModel(models.getModel(part.getGuiModelId()), matrices, consumer, LightmapTextureManager.MAX_LIGHT_COORDINATE, overlay);
+                }
+                else renderModel(models.getModel(part.getGuiModelId()), matrices, consumer, light, overlay);
+            }
         }
         else {
             boolean isFirstPerson = (mode == ModelTransformationMode.FIRST_PERSON_RIGHT_HAND || mode == ModelTransformationMode.FIRST_PERSON_LEFT_HAND);
@@ -51,8 +57,8 @@ public class DiscontinuityRenderer implements BuiltinItemRendererRegistry.Dynami
             for (PartVariant part : parts) {
                 fullOffset += part.getFullOffset();
                 matrices.push();
-                matrices.scale((float) part.getScaleFactor() * 1.25f + part.getScaleFactor() / 10e2f, (float) part.getScaleFactor() * 1.25f + part.getScaleFactor() / 10e2f, 1.25f + part.getScaleFactor() / 10e2f);
-                matrices.translate(accumulatedOffsetX / part.getScaleFactor() / 16.0f + part.getScaleFactor() / 10e2f / 2 + fullOffset / part.getScaleFactor() / 16 - 1f / 16 / part.getScaleFactor(), accumulatedOffsetY / part.getScaleFactor() / 16.0f + part.getScaleFactor() / 10e2f / 2 + fullOffset / part.getScaleFactor() / 16 - 1f / 16 / part.getScaleFactor(), -2/16f - part.getScaleFactor() / 10e2f / 2);
+                matrices.scale((float) part.getScaleFactor() * 1.1f + part.getScaleFactor() / 10e3f, (float) part.getScaleFactor() * 1.1f + part.getScaleFactor() / 10e3f, 1.25f + part.getScaleFactor() / 10e3f);
+                matrices.translate(accumulatedOffsetX / part.getScaleFactor() / 16.0f + part.getScaleFactor() / 10e3f / 2 + fullOffset / part.getScaleFactor() / 16 - 1f / 16 / part.getScaleFactor(), accumulatedOffsetY / part.getScaleFactor() / 16.0f + part.getScaleFactor() / 10e3f / 2 + fullOffset / part.getScaleFactor() / 16 - 1f / 16 / part.getScaleFactor(), -2/16f - part.getScaleFactor() / 10e3f / 2);
 
                 if (part.doIgnoreLight()) {
                     renderModel(models.getModel(part.getModelId()), matrices, consumer, LightmapTextureManager.MAX_LIGHT_COORDINATE, overlay);

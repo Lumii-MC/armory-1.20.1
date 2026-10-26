@@ -5,6 +5,12 @@
       "armory:slash"
     ]
   },
+  "part_swap": {
+  "subtitle": "sounds.armory.part_swap",
+  "sounds": [
+    "armory:part_swap"
+  ]
+},
   "event.execution": {
     "subtitle": "sounds.armory.execution",
     "sounds": [
