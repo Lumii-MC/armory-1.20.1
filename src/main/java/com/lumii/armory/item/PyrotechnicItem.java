@@ -2,21 +2,22 @@ package com.lumii.armory.item;
 
 import com.lumii.armory.entity.FuseEntity;
 import com.lumii.armory.registry.ArmoryEntityRegistry;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.StackReference;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.*;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.carpentry.citrine.api.item.CustomHeldPoseItem;
@@ -31,6 +32,7 @@ public class PyrotechnicItem extends SwordItem implements VaryingModelItem, Cust
     private final Identifier GUI = new Identifier("armory", "pyrotechnic_gui");
     private final String CHARGES_KEY = "charges";
     private final String COOLDOWN_KEY = "cooldown";
+    private final String DESTROY_KEY = "destroy";
     private static final int RECHARGE_TICKS = 80;
 
     public PyrotechnicItem(ToolMaterial toolMaterial, Settings settings) {
@@ -59,11 +61,29 @@ public class PyrotechnicItem extends SwordItem implements VaryingModelItem, Cust
     }
 
     @Override
+    public boolean onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference) {
+        if (otherStack.isEmpty()) {
+            if (clickType == ClickType.RIGHT) {
+                setDestroying(stack, !getDestroying(stack));
+                return true;
+            }
+        }
+        return super.onClicked(stack, otherStack, slot, clickType, player, cursorStackReference);
+    }
+
+    @Override
+    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+        tooltip.add(Text.literal("Destroying blocks: " + getDestroying(stack)).formatted(Formatting.GRAY));
+        tooltip.add(Text.empty());
+        super.appendTooltip(stack, world, tooltip, context);
+    }
+
+    @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         ItemStack stack = user.getStackInHand(hand);
         int charges = getCharges(stack);
         if (charges > 0) {
-            spawn(user, world, user.isSneaking());
+            spawn(user, world, getDestroying(stack));
             setCharges(stack, charges - 1);
             setCooldown(stack, RECHARGE_TICKS);
             user.getItemCooldownManager().set(this, 3);
@@ -151,5 +171,17 @@ public class PyrotechnicItem extends SwordItem implements VaryingModelItem, Cust
             return nbt.getInt(COOLDOWN_KEY);
         }
         return RECHARGE_TICKS;
+    }
+
+    private void setDestroying(ItemStack stack, boolean destroy) {
+        stack.getOrCreateNbt().putBoolean(DESTROY_KEY, destroy);
+    }
+
+    private boolean getDestroying(ItemStack stack) {
+        NbtCompound nbt = stack.getNbt();
+        if (nbt != null && nbt.contains(DESTROY_KEY)) {
+            return nbt.getBoolean(DESTROY_KEY);
+        }
+        return false;
     }
 }
