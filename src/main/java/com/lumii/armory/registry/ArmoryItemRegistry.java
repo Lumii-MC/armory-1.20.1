@@ -1,7 +1,6 @@
 package com.lumii.armory.registry;
 
 import com.lumii.armory.item.*;
-import com.lumii.armory.item.discontinuity.DiscontinuityItem;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.item.*;
 import net.minecraft.registry.Registries;
@@ -53,9 +52,6 @@ public class ArmoryItemRegistry {
     public static final Item WORLD_REMOTE = Registry.register(Registries.ITEM, new Identifier(
             "armory", "world_remote"), new WorldRemoteItem(new Item.Settings().maxCount(1))
     );
-    public static final Item DISCONTINUITY = Registry.register(Registries.ITEM, new Identifier(
-            "armory", "discontinuity"), new DiscontinuityItem(new Item.Settings())
-    );
 
     public static void init(){}
 
@@ -71,7 +67,6 @@ public class ArmoryItemRegistry {
                         entries.add(WRAITH);
                         entries.add(GUILLOTINE_PUB);
                         entries.add(SCISSOR_BLADE);
-                        entries.add(DISCONTINUITY);
                         entries.add(DIVINITY_DISSONANCE);
                         entries.add(HANDBELL);
                         entries.add(DEATH_MARK);

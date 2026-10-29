@@ -1,9 +1,6 @@
 package com.lumii.armory;
 
 import com.lumii.armory.cca.ModComponents;
-import com.lumii.armory.item.discontinuity.DiscontinuityRenderer;
-import com.lumii.armory.item.discontinuity.PartVariant;
-import com.lumii.armory.registry.ArmoryItemRegistry;
 import com.lumii.armory.registry.ArmoryPackets;
 import com.lumii.armory.util.ChainClientTracker;
 import com.lumii.armory.util.scissor.ClientChainRenderer;
@@ -19,8 +16,6 @@ import com.lumii.armory.vfx.mark.shockwave.ShockwavePostHandler;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
-import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
@@ -108,14 +103,5 @@ public class ArmoryClient implements ClientModInitializer {
                     })
             );
         });
-
-        ModelLoadingPlugin.register(ctx -> {
-            for (PartVariant v : PartVariant.values()) {
-                ctx.addModels(v.getModelId());
-                ctx.addModels(v.getGuiModelId());
-            }
-        });
-
-        BuiltinItemRendererRegistry.INSTANCE.register(ArmoryItemRegistry.DISCONTINUITY, new DiscontinuityRenderer());
     }
 }
