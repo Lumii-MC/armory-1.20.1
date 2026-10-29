@@ -1,20 +1,155 @@
 package com.lumii.armory.item;
 
+import com.lumii.armory.entity.FuseEntity;
+import com.lumii.armory.registry.ArmoryEntityRegistry;
+import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
 import net.minecraft.item.ToolMaterial;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.carpentry.citrine.api.item.CustomHeldPoseItem;
+import org.carpentry.citrine.api.item.VaryingModelItem;
+import org.carpentry.citrine.api.util.model.ModelPresets;
+import org.jetbrains.annotations.Nullable;
 
-public class PyrotechnicItem extends SwordItem {
-    public PyrotechnicItem(ToolMaterial toolMaterial, int attackDamage, float attackSpeed, Settings settings) {
-        super(toolMaterial, attackDamage, attackSpeed, settings);
+import java.awt.*;
+import java.util.List;
+
+public class PyrotechnicItem extends SwordItem implements VaryingModelItem, CustomHeldPoseItem {
+    private final Identifier GUI = new Identifier("armory", "pyrotechnic_gui");
+    private final String CHARGES_KEY = "charges";
+    private final String COOLDOWN_KEY = "cooldown";
+    private static final int RECHARGE_TICKS = 80;
+
+    public PyrotechnicItem(ToolMaterial toolMaterial, Settings settings) {
+        super(toolMaterial, 5, -2.75f, settings);
+    }
+
+    @Override
+    public boolean allowNbtUpdateAnimation(PlayerEntity player, Hand hand, ItemStack oldStack, ItemStack newStack) {
+        return false;
+    }
+
+    @Override
+    public int getItemBarStep(ItemStack stack) {
+        int charges = getCharges(stack);
+        return Math.round(13.0F * (float) charges / (float) 4);
+    }
+
+    @Override
+    public int getItemBarColor(ItemStack stack) {
+        return new Color(137, 118, 153).getRGB();
+    }
+
+    @Override
+    public boolean isItemBarVisible(ItemStack stack) {
+        return getCharges(stack) < 4;
     }
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-        return super.use(world, user, hand);
+        ItemStack stack = user.getStackInHand(hand);
+        int charges = getCharges(stack);
+        if (charges > 0) {
+            spawn(user, world, user.isSneaking());
+            setCharges(stack, charges - 1);
+            setCooldown(stack, RECHARGE_TICKS);
+            user.getItemCooldownManager().set(this, 3);
+            return TypedActionResult.success(stack);
+        } else {
+            return TypedActionResult.fail(stack);
+        }
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+        if (!world.isClient) {
+            int charges = getCharges(stack);
+            if (charges < 4) {
+                int cooldown = getCooldown(stack);
+                if (cooldown <= 0) {
+                    setCharges(stack, charges + 1);
+                    setCooldown(stack, RECHARGE_TICKS);
+                } else {
+                    setCooldown(stack, cooldown - 1);
+                }
+            } else {
+                setCooldown(stack, RECHARGE_TICKS);
+            }
+        }
+        super.inventoryTick(stack, world, entity, slot, selected);
+    }
+
+    @Override
+    public BipedEntityModel.ArmPose getArmPose(ItemStack itemStack, PlayerEntity playerEntity) {
+        return BipedEntityModel.ArmPose.CROSSBOW_CHARGE;
+    }
+
+    @Override
+    public List<Identifier> getModels() {
+        return List.of(GUI);
+    }
+
+    @Override
+    public @Nullable Identifier getModel(ItemStack itemStack, @Nullable LivingEntity livingEntity, ModelTransformationMode modelTransformationMode) {
+        return ModelPresets.handheld(modelTransformationMode, GUI);
+    }
+
+    @Override
+    public Text getName(ItemStack stack) {
+        return super.getName(stack).copy().styled(s -> s.withColor(new Color(137, 118, 153).getRGB()));
+    }
+
+    private static void spawn(PlayerEntity user, World world, boolean destroy) {
+        if (!world.isClient) {
+            Vec3d eyePos = user.getEyePos();
+            Vec3d lookVec = user.getRotationVec(1.0f);
+
+            FuseEntity fuse = new FuseEntity(ArmoryEntityRegistry.FUSE, world);
+            fuse.setPosition(eyePos.x + lookVec.x * 0.5D, eyePos.y + lookVec.y * 0.5D, eyePos.z + lookVec.z * 0.5D);
+            fuse.setOwner(user);
+            fuse.setVelocity(lookVec.multiply(2f));
+            fuse.setDestroyTerrain(destroy);
+
+            world.spawnEntity(fuse);
+            world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.PLAYERS, 1.0F, 1.0F);
+        }
+    }
+
+    private void setCharges(ItemStack stack, int charges) {
+        stack.getOrCreateNbt().putInt(CHARGES_KEY, charges);
+    }
+
+    private int getCharges(ItemStack stack) {
+        NbtCompound nbt = stack.getNbt();
+        if (nbt != null && nbt.contains(CHARGES_KEY)) {
+            return nbt.getInt(CHARGES_KEY);
+        }
+        setCharges(stack, 4);
+        return 4;
+    }
+
+    private void setCooldown(ItemStack stack, int ticks) {
+        stack.getOrCreateNbt().putInt(COOLDOWN_KEY, ticks);
+    }
+
+    private int getCooldown(ItemStack stack) {
+        NbtCompound nbt = stack.getNbt();
+        if (nbt != null && nbt.contains(COOLDOWN_KEY)) {
+            return nbt.getInt(COOLDOWN_KEY);
+        }
+        return RECHARGE_TICKS;
     }
 }

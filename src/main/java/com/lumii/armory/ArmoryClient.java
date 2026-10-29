@@ -1,6 +1,9 @@
 package com.lumii.armory;
 
 import com.lumii.armory.cca.ModComponents;
+import com.lumii.armory.entity.client.FuseEntityModel;
+import com.lumii.armory.entity.client.FuseEntityRenderer;
+import com.lumii.armory.registry.ArmoryEntityRegistry;
 import com.lumii.armory.registry.ArmoryPackets;
 import com.lumii.armory.util.ChainClientTracker;
 import com.lumii.armory.util.scissor.ClientChainRenderer;
@@ -16,6 +19,8 @@ import com.lumii.armory.vfx.mark.shockwave.ShockwavePostHandler;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
@@ -41,6 +46,9 @@ public class ArmoryClient implements ClientModInitializer {
         // Instanced post
         PostProcessHandler.addInstance(ShockwavePostHandler.INSTANCE);
         PostProcessHandler.addInstance(BeamPostHandler.INSTANCE);
+
+        EntityModelLayerRegistry.registerModelLayer(FuseEntityModel.MODEL_LAYER, FuseEntityModel::getTexturedModelData);
+        EntityRendererRegistry.register(ArmoryEntityRegistry.FUSE, FuseEntityRenderer::new);
 
         // dev test commands
         if (FabricLoader.getInstance().isDevelopmentEnvironment()) {

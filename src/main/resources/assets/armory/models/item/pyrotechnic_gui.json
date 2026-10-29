@@ -1,0 +1,7 @@
+{
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "armory:item/pyrotechnic_gui"
+	},
+	"gui_light": "front"
+}

@@ -9,18 +9,7 @@ import team.lodestar.lodestone.systems.postprocess.PostProcessor;
 public class DistortionPost extends PostProcessor {
     public static final DistortionPost INSTANCE = new DistortionPost();
 
-    @Override
-    public Identifier getPostChainLocation() {
-        return Armory.id("distortion");
-    }
-
-    @Override
-    public void beforeProcess(MatrixStack viewModelStack) {
-
-    }
-
-    @Override
-    public void afterProcess() {
-
-    }
+    @Override public Identifier getPostChainLocation() {return Armory.id("distortion");}
+    @Override public void beforeProcess(MatrixStack viewModelStack) {}
+    @Override public void afterProcess() {}
 }

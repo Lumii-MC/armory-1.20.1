@@ -46,6 +46,9 @@ public class ArmoryItemRegistry {
     public static final Item DAYBREAK_EDICT = Registry.register(Registries.ITEM, new Identifier(
             "armory", "daybreak_edict"), new GildedExecutionerItem(ToolMaterials.NETHERITE, new Item.Settings())
     );
+    public static final Item PYROTECHNIC = Registry.register(Registries.ITEM, new Identifier(
+            "armory", "pyrotechnic"), new PyrotechnicItem(ToolMaterials.DIAMOND, new Item.Settings())
+    );
     public static final Item SCISSOR_BLADE = Registry.register(Registries.ITEM, new Identifier(
             "armory", "scissorblade"), new ScissorBladeItem(new Item.Settings())
     );
@@ -67,6 +70,7 @@ public class ArmoryItemRegistry {
                         entries.add(WRAITH);
                         entries.add(GUILLOTINE_PUB);
                         entries.add(SCISSOR_BLADE);
+                        entries.add(PYROTECHNIC);
                         entries.add(DIVINITY_DISSONANCE);
                         entries.add(HANDBELL);
                         entries.add(DEATH_MARK);
