@@ -14,7 +14,6 @@ public interface ArmorySoundsRegistry {
 
 
     SoundEvent SLASH = create("slash");
-    SoundEvent PART_SWAP = create("part_swap");
     SoundEvent EXECUTION = create("event.execution");
     SoundEvent BIGFUCKINGBEAM = create("event.bigfuckingbeam");
     SoundEvent REMOTE = create("event.remote");
