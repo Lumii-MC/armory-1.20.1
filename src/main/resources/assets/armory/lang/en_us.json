@@ -36,6 +36,8 @@
   "enchantment.armory.reap.desc": "Pulls the target towards you.",
   "enchantment.armory.hook": "Hook",
   "enchantment.armory.hook.desc": "Pulls you towards the target.",
+  "enchantment.armory.nuke": "Nuke",
+  "enchantment.armory.nuke.desc": "Creates a much bigger blast when two fuses collide.",
 
   "itemGroup.armory.group": "Armory"
 }

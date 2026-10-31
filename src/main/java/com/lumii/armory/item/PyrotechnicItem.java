@@ -1,10 +1,13 @@
 package com.lumii.armory.item;
 
 import com.lumii.armory.entity.FuseEntity;
+import com.lumii.armory.registry.ArmoryEnchantRegistry;
 import com.lumii.armory.registry.ArmoryEntityRegistry;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -33,10 +36,14 @@ public class PyrotechnicItem extends SwordItem implements VaryingModelItem, Cust
     private final String CHARGES_KEY = "charges";
     private final String COOLDOWN_KEY = "cooldown";
     private final String DESTROY_KEY = "destroy";
-    private static final int RECHARGE_TICKS = 80;
+    private static final int RECHARGE_TICKS = 100;
 
     public PyrotechnicItem(ToolMaterial toolMaterial, Settings settings) {
         super(toolMaterial, 5, -2.75f, settings);
+    }
+
+    private static boolean hasEnchant(ItemStack stack, Enchantment ench) {
+        return EnchantmentHelper.getLevel(ench, stack) > 0;
     }
 
     @Override
@@ -47,7 +54,7 @@ public class PyrotechnicItem extends SwordItem implements VaryingModelItem, Cust
     @Override
     public int getItemBarStep(ItemStack stack) {
         int charges = getCharges(stack);
-        return Math.round(13.0F * (float) charges / (float) 4);
+        return Math.round(13.0F * (float) charges / 3);
     }
 
     @Override
@@ -57,7 +64,7 @@ public class PyrotechnicItem extends SwordItem implements VaryingModelItem, Cust
 
     @Override
     public boolean isItemBarVisible(ItemStack stack) {
-        return getCharges(stack) < 4;
+        return true;
     }
 
     @Override
@@ -84,7 +91,7 @@ public class PyrotechnicItem extends SwordItem implements VaryingModelItem, Cust
         int charges = getCharges(stack);
         if (charges > 0) {
             spawn(user, world, getDestroying(stack));
-            setCharges(stack, charges - 1);
+            if (!user.isCreative()) setCharges(stack, charges - 1);
             setCooldown(stack, RECHARGE_TICKS);
             user.getItemCooldownManager().set(this, 3);
             return TypedActionResult.success(stack);
@@ -97,7 +104,7 @@ public class PyrotechnicItem extends SwordItem implements VaryingModelItem, Cust
     public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
         if (!world.isClient) {
             int charges = getCharges(stack);
-            if (charges < 4) {
+            if (charges < 3) {
                 int cooldown = getCooldown(stack);
                 if (cooldown <= 0) {
                     setCharges(stack, charges + 1);
@@ -138,13 +145,15 @@ public class PyrotechnicItem extends SwordItem implements VaryingModelItem, Cust
             Vec3d lookVec = user.getRotationVec(1.0f);
 
             FuseEntity fuse = new FuseEntity(ArmoryEntityRegistry.FUSE, world);
-            fuse.setPosition(eyePos.x + lookVec.x * 0.5D, eyePos.y + lookVec.y * 0.5D, eyePos.z + lookVec.z * 0.5D);
+            fuse.setPosition(eyePos.x + lookVec.x * 0.5D, eyePos.y + lookVec.y * 0.5, eyePos.z + lookVec.z * 0.5);
             fuse.setOwner(user);
-            fuse.setVelocity(lookVec.multiply(2f));
+            fuse.setNuke(hasEnchant(user.getStackInHand(user.getActiveHand()), ArmoryEnchantRegistry.NUKE));
+            Vec3d vel = user.getVelocity();
+            fuse.setVelocity(lookVec.multiply((vel.x + vel.y + vel.z) / 3 * 3 + 1));
             fuse.setDestroyTerrain(destroy);
 
             world.spawnEntity(fuse);
-            world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.PLAYERS, 1.0F, 1.0F);
+            world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.PLAYERS, 1, 1);
         }
     }
 
@@ -157,8 +166,8 @@ public class PyrotechnicItem extends SwordItem implements VaryingModelItem, Cust
         if (nbt != null && nbt.contains(CHARGES_KEY)) {
             return nbt.getInt(CHARGES_KEY);
         }
-        setCharges(stack, 4);
-        return 4;
+        setCharges(stack, 3);
+        return 3;
     }
 
     private void setCooldown(ItemStack stack, int ticks) {
