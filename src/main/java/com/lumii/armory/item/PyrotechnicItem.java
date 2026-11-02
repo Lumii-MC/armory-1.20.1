@@ -145,11 +145,11 @@ public class PyrotechnicItem extends SwordItem implements VaryingModelItem, Cust
             Vec3d lookVec = user.getRotationVec(1.0f);
 
             FuseEntity fuse = new FuseEntity(ArmoryEntityRegistry.FUSE, world);
-            fuse.setPosition(eyePos.x + lookVec.x * 0.5D, eyePos.y + lookVec.y * 0.5, eyePos.z + lookVec.z * 0.5);
+            fuse.setPosition(eyePos.x + lookVec.x * 0.5, eyePos.y + lookVec.y * 0.5, eyePos.z + lookVec.z * 0.5);
             fuse.setOwner(user);
             fuse.setNuke(hasEnchant(user.getStackInHand(user.getActiveHand()), ArmoryEnchantRegistry.NUKE));
             Vec3d vel = user.getVelocity();
-            fuse.setVelocity(lookVec.multiply((vel.x + vel.y + vel.z) / 3 * 3 + 1));
+            fuse.setVelocity(lookVec.multiply((((vel.x + vel.y + vel.z) / 3) * 6) + 1));
             fuse.setDestroyTerrain(destroy);
 
             world.spawnEntity(fuse);
